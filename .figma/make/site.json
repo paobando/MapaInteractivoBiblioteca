@@ -1,0 +1,10 @@
+{
+  "description": "Navigate an interactive library map to locate books by Dewey Decimal System, filter by categories, and enhance your search experience.",
+  "robots": {
+    "index": false
+  },
+  "accessibility": {
+    "addBypassLinks": false,
+    "ignoreReducedMotion": false
+  }
+}

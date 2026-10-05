@@ -1,0 +1,260 @@
+import { useEffect, useRef, useState } from "react";
+import { deweyCategories, type Shelf } from "../data/libraryData";
+
+const DESIGN_W = 752;
+const DESIGN_H = 674;
+
+type Props = {
+  shelves: Shelf[];
+  editMode: boolean;
+  onShelfClick: (shelf: Shelf) => void;
+  onShelfMove: (id: string, x: number, y: number) => void;
+  onMapClick: (x: number, y: number) => void;
+  selectedShelf: Shelf | null;
+};
+
+function FloorPlan() {
+  return (
+    <div className="relative size-full bg-white" aria-label="Plano del primer piso">
+      <div className="absolute left-[485px] top-[54px] flex h-[165px] w-[124px] items-center justify-center bg-[#f6f6f6]">
+        <span className="-rotate-90 font-['Plus_Jakarta_Sans:Regular'] text-[12px] text-black">Oficina Biblioteca</span>
+      </div>
+      <div className="absolute left-[62px] top-[54px] flex h-[165px] w-[245px] items-center justify-center bg-[#f6f6f6]">
+        <span className="w-[137px] font-['Plus_Jakarta_Sans:Regular'] text-[12px] text-black">
+          Oficina de innovación educativa
+        </span>
+      </div>
+      <div className="absolute left-[113px] top-[466px] flex h-[165px] w-[194px] items-center justify-center bg-[#f6f6f6]">
+        <span className="font-['Plus_Jakarta_Sans:Regular'] text-[12px] text-black">Sala Oasis</span>
+      </div>
+      <div className="absolute left-[62px] top-[465px] flex h-[165px] w-[47px] items-center justify-center bg-[#f6f6f6]">
+        <span className="-rotate-90 whitespace-nowrap font-['Plus_Jakarta_Sans:Regular'] text-[12px] text-black">Sala patrimonial</span>
+      </div>
+      <div className="absolute left-[310px] top-[541px] flex h-[89px] w-[71px] items-center justify-center bg-[#f6f6f6]">
+        <span className="font-['Plus_Jakarta_Sans:Regular'] text-[10px] text-black">Escaleras</span>
+      </div>
+      <div className="absolute left-[441px] top-[527px] h-[39px] w-[36px] bg-[#f6f6f6]" />
+      <img className="absolute left-[385px] top-[465px]" src="/assets/40496.svg" alt="" width="32" height="32" />
+      <div className="absolute left-[386px] top-[541px] flex size-[42px] items-center justify-center bg-[#f6f6f6]">
+        <img src="/assets/2f834.svg" alt="Ascensor" width="23" height="28" />
+      </div>
+      <div className="absolute left-[311px] top-[54px] flex h-[89px] w-[92px] items-center justify-center bg-[#f6f6f6]">
+        <span className="font-['Plus_Jakarta_Sans:Regular'] text-[10px] text-black">Escaleras</span>
+      </div>
+      <div className="absolute left-[501px] top-[465px] flex h-[165px] w-[48px] items-center justify-center bg-[#f6f6f6]">
+        <span className="-rotate-90 whitespace-nowrap font-['Plus_Jakarta_Sans:Regular'] text-[12px] text-black">El encuentro</span>
+      </div>
+      <div className="absolute left-[307px] top-[223px] flex h-[239px] w-[302px] items-center justify-center bg-[#f6f6f6]">
+        <span className="font-['Plus_Jakarta_Sans:Regular'] text-[12px] text-black">Hall de biblioteca</span>
+      </div>
+      <div className="absolute left-[553px] top-[465px] flex h-[165px] w-[133px] items-center justify-center bg-[#f6f6f6]">
+        <span className="-rotate-90 whitespace-nowrap font-['Plus_Jakarta_Sans:Regular'] text-[12px] text-black">Marketing zone</span>
+      </div>
+
+      {[
+        { top: 54, label: "103B" },
+        { top: 111, label: "102B" },
+        { top: 168, label: "101B" },
+      ].map((room) => (
+        <div
+          key={room.label}
+          className="absolute left-[633px] flex h-[52px] w-[53px] items-center justify-center bg-[#f6f6f6]"
+          style={{ top: room.top }}
+        >
+          <span className="font-['Plus_Jakarta_Sans:Regular'] text-[12px] text-black">{room.label}</span>
+        </div>
+      ))}
+
+      <div className="absolute left-[613px] top-[54px] flex h-[166px] w-[20px] items-center justify-center bg-black">
+        <span className="-rotate-90 whitespace-nowrap font-['Plus_Jakarta_Sans:SemiBold'] text-[10px] text-white">Salas de estudio</span>
+      </div>
+      <div className="absolute left-[481px] top-[465px] flex h-[165px] w-[20px] items-center justify-center bg-black">
+        <span className="-rotate-90 whitespace-nowrap font-['Plus_Jakarta_Sans:SemiBold'] text-[10px] text-white">Salas de profesores</span>
+      </div>
+    </div>
+  );
+}
+
+export default function Floor1Map({
+  shelves = [],
+  editMode,
+  onShelfClick,
+  onShelfMove,
+  onMapClick,
+  selectedShelf,
+}: Props) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const overlayRef = useRef<HTMLDivElement>(null);
+  const draggingRef = useRef<string | null>(null);
+  const movedRef = useRef(false);
+  const [{ scale, ox, oy }, setTransform] = useState({ scale: 1, ox: 0, oy: 0 });
+
+  useEffect(() => {
+    const element = containerRef.current;
+    if (!element) return;
+    const observer = new ResizeObserver(([entry]) => {
+      const { width, height } = entry.contentRect;
+      const nextScale = Math.min(width / DESIGN_W, height / DESIGN_H);
+      setTransform({
+        scale: nextScale,
+        ox: Math.max(0, (width - DESIGN_W * nextScale) / 2),
+        oy: Math.max(0, (height - DESIGN_H * nextScale) / 2),
+      });
+    });
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, []);
+
+  const getPosition = (event: React.PointerEvent) => {
+    if (!overlayRef.current) return null;
+    const rect = overlayRef.current.getBoundingClientRect();
+    return {
+      x: Math.max(2, Math.min(98, ((event.clientX - rect.left) / rect.width) * 100)),
+      y: Math.max(2, Math.min(98, ((event.clientY - rect.top) / rect.height) * 100)),
+    };
+  };
+
+  const scaledWidth = DESIGN_W * scale;
+  const scaledHeight = DESIGN_H * scale;
+  const floorShelves = shelves.filter((shelf) => shelf.floor === 1);
+
+  return (
+    <div ref={containerRef} className="relative size-full overflow-hidden bg-white">
+      <div
+        className="pointer-events-none absolute"
+        style={{ left: ox, top: oy, width: scaledWidth, height: scaledHeight }}
+      >
+        <div
+          style={{
+            width: DESIGN_W,
+            height: DESIGN_H,
+            transform: `scale(${scale})`,
+            transformOrigin: "top left",
+          }}
+        >
+          <FloorPlan />
+        </div>
+      </div>
+
+      <div
+        ref={overlayRef}
+        className="absolute"
+        onClick={(event) => {
+          if (!editMode || (event.target as HTMLElement).closest("button")) return;
+          const rect = event.currentTarget.getBoundingClientRect();
+          onMapClick(
+            ((event.clientX - rect.left) / rect.width) * 100,
+            ((event.clientY - rect.top) / rect.height) * 100,
+          );
+        }}
+        style={{
+          left: ox,
+          top: oy,
+          width: scaledWidth,
+          height: scaledHeight,
+          cursor: editMode ? "crosshair" : "default",
+        }}
+      >
+        {editMode && <div className="pointer-events-none absolute inset-0 border-2 border-dashed border-icesi-orange/60" />}
+
+        {floorShelves.map((shelf) => {
+          const selected = selectedShelf?.id === shelf.id;
+          const category = deweyCategories.find((item) => shelf.categoryIds.includes(item.id));
+          const color = shelf.color ?? category?.color ?? "#5454E9";
+          const isArea = shelf.kind === "area";
+
+          return (
+            <button
+              key={shelf.id}
+              type="button"
+              aria-label={isArea ? `Área ${shelf.label}` : `${shelf.label}, signatura ${shelf.deweyRanges.join(", ")}`}
+              onPointerDown={(event) => {
+                if (!editMode) return;
+                event.preventDefault();
+                event.stopPropagation();
+                event.currentTarget.setPointerCapture(event.pointerId);
+                movedRef.current = false;
+                draggingRef.current = shelf.id;
+              }}
+              onPointerMove={(event) => {
+                if (!editMode || draggingRef.current !== shelf.id) return;
+                const position = getPosition(event);
+                if (!position) return;
+                movedRef.current = true;
+                onShelfMove(shelf.id, position.x, position.y);
+              }}
+              onPointerUp={() => {
+                draggingRef.current = null;
+              }}
+              onClick={(event) => {
+                event.stopPropagation();
+                if (!movedRef.current) onShelfClick(shelf);
+                movedRef.current = false;
+              }}
+              className={`group absolute z-10 -translate-x-1/2 focus:outline-none ${
+                isArea ? "-translate-y-1/2" : "-translate-y-full"
+              }`}
+              style={{
+                left: `${shelf.x}%`,
+                top: `${shelf.y}%`,
+                cursor: editMode ? "grab" : "pointer",
+                touchAction: "none",
+              }}
+            >
+              {isArea ? (
+                <>
+                  <span
+                    className="flex size-8 items-center justify-center border-2 bg-white shadow-md transition-transform group-hover:scale-110"
+                    style={{
+                      borderColor: selected ? "#111827" : color,
+                      boxShadow: selected ? `0 0 0 4px ${color}38` : undefined,
+                    }}
+                  >
+                    <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+                      <rect x="3" y="6" width="12" height="7" stroke={color} strokeWidth="1.5" />
+                      <circle cx="6" cy="4" r="1.25" fill={color} />
+                      <circle cx="12" cy="4" r="1.25" fill={color} />
+                      <circle cx="6" cy="15" r="1.25" fill={color} />
+                      <circle cx="12" cy="15" r="1.25" fill={color} />
+                    </svg>
+                  </span>
+                  <span className="mt-1 block whitespace-nowrap bg-gray-950 px-2 py-1 text-[9px] font-semibold text-white shadow-md">
+                    {shelf.label}
+                  </span>
+                </>
+              ) : (
+                <>
+                  <span
+                    className="flex size-8 items-center justify-center border-2 border-white text-[8px] font-extrabold text-white shadow-lg transition-transform group-hover:scale-110"
+                    style={{
+                      backgroundColor: selected ? "#111827" : color,
+                      transform: selected ? "scale(1.16)" : undefined,
+                      boxShadow: selected ? `0 0 0 4px ${color}38` : undefined,
+                    }}
+                  >
+                    {shelf.label}
+                  </span>
+                  <span
+                    className="mx-auto block size-0 border-x-[5px] border-t-[7px] border-x-transparent"
+                    style={{ borderTopColor: selected ? "#111827" : color }}
+                  />
+                  {!editMode && (
+                    <span className="mt-1 block whitespace-nowrap border border-gray-200 bg-white px-1.5 py-0.5 text-[8px] font-bold text-gray-700 shadow-sm">
+                      {shelf.deweyRanges[0]}
+                    </span>
+                  )}
+                </>
+              )}
+            </button>
+          );
+        })}
+
+        {editMode && (
+          <div className="pointer-events-none absolute left-1/2 top-3 -translate-x-1/2 bg-icesi-orange px-3 py-1.5 text-[10px] font-semibold text-white shadow-lg">
+            Clic para agregar · Arrastra para mover
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
