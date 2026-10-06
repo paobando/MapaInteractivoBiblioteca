@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { shelves as initialShelves, type Shelf } from "./data/libraryData";
 import FloorMap from "./components/FloorMap";
 import Floor1Map from "./components/Floor1Map";
@@ -6,6 +6,7 @@ import Floor2Map from "./components/Floor2Map";
 import Floor3Map from "./components/Floor3Map";
 import ShelfPanel from "./components/ShelfPanel";
 import EditPanel from "./components/EditPanel";
+import { fetchMapState, saveMapState, type MapState } from "./lib/mapStore";
 
 const FLOORS = [1, 2, 3] as const;
 
@@ -16,53 +17,129 @@ const floorMeta: Record<number, { full: string; zones: string }> = {
 };
 
 const STORAGE_KEY = "mapa-biblioteca:v1";
+const REFRESH_MS = 30_000;
 
-type SavedState = {
-  shelves: Shelf[];
-  floorNames: Record<number, string>;
-  floorSubtitles: Record<number, string>;
+const defaultFloorNames: Record<number, string> = {
+  1: floorMeta[1].full,
+  2: floorMeta[2].full,
+  3: floorMeta[3].full,
+};
+const defaultFloorSubtitles: Record<number, string> = {
+  1: floorMeta[1].zones,
+  2: floorMeta[2].zones,
+  3: floorMeta[3].zones,
 };
 
-/* Los cambios se guardan en localStorage para que sobrevivan a recargas. */
-function loadSaved(): Partial<SavedState> {
+type SyncStatus = "loading" | "saving" | "saved" | "error";
+
+function normalize(state: Partial<MapState> | null | undefined): MapState {
+  return {
+    shelves: Array.isArray(state?.shelves) ? state.shelves : (initialShelves ?? []),
+    floorNames: { ...defaultFloorNames, ...state?.floorNames },
+    floorSubtitles: { ...defaultFloorSubtitles, ...state?.floorSubtitles },
+  };
+}
+
+/* Copia local para pintar rápido mientras llega la versión compartida. */
+function loadCached(): Partial<MapState> | null {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    return raw ? (JSON.parse(raw) as Partial<SavedState>) : {};
+    return raw ? (JSON.parse(raw) as Partial<MapState>) : null;
   } catch {
-    return {};
+    return null;
   }
 }
 
-const saved = loadSaved();
+const cached = normalize(loadCached());
 
 export default function App() {
-  const [shelves, setShelves] = useState<Shelf[]>(
-    Array.isArray(saved.shelves) ? saved.shelves : (initialShelves ?? []),
-  );
-  const [floorNames, setFloorNames] = useState<Record<number, string>>({
-    1: floorMeta[1].full,
-    2: floorMeta[2].full,
-    3: floorMeta[3].full,
-    ...saved.floorNames,
-  });
-  const [floorSubtitles, setFloorSubtitles] = useState<Record<number, string>>({
-    1: floorMeta[1].zones,
-    2: floorMeta[2].zones,
-    3: floorMeta[3].zones,
-    ...saved.floorSubtitles,
-  });
+  const [shelves, setShelves] = useState<Shelf[]>(cached.shelves);
+  const [floorNames, setFloorNames] = useState<Record<number, string>>(cached.floorNames);
+  const [floorSubtitles, setFloorSubtitles] = useState<Record<number, string>>(cached.floorSubtitles);
+  const [syncStatus, setSyncStatus] = useState<SyncStatus>("loading");
+  /* true cuando ya se leyó la versión compartida y se puede escribir sobre ella */
+  const [ready, setReady] = useState(false);
+  const readyRef = useRef(false);
+  const [retryCount, setRetryCount] = useState(0);
+  const lastSyncedRef = useRef("");
+  const currentJsonRef = useRef("");
+  const saveChainRef = useRef<Promise<void>>(Promise.resolve());
+  const editModeRef = useRef(false);
+
+  const applyRemote = useCallback((remote: MapState) => {
+    const state = normalize(remote);
+    lastSyncedRef.current = JSON.stringify(state);
+    setShelves(state.shelves);
+    setFloorNames(state.floorNames);
+    setFloorSubtitles(state.floorSubtitles);
+  }, []);
+
+  /* Trae los cambios de otras personas, salvo que haya ediciones locales pendientes. */
+  const refresh = useCallback(async () => {
+    try {
+      const remote = await fetchMapState();
+      if (!readyRef.current) {
+        if (remote) applyRemote(remote);
+        readyRef.current = true;
+        setReady(true);
+      } else if (
+        remote &&
+        !editModeRef.current &&
+        currentJsonRef.current === lastSyncedRef.current &&
+        JSON.stringify(normalize(remote)) !== lastSyncedRef.current
+      ) {
+        applyRemote(remote);
+      }
+      if (currentJsonRef.current !== lastSyncedRef.current) {
+        /* quedó un guardado pendiente (p. ej. falló sin conexión): reintentar */
+        setRetryCount((count) => count + 1);
+      } else {
+        setSyncStatus("saved");
+      }
+    } catch {
+      setSyncStatus("error");
+    }
+  }, [applyRemote]);
 
   useEffect(() => {
+    refresh();
+    const interval = window.setInterval(refresh, REFRESH_MS);
+    window.addEventListener("focus", refresh);
+    return () => {
+      window.clearInterval(interval);
+      window.removeEventListener("focus", refresh);
+    };
+  }, [refresh]);
+
+  /* Guarda en Supabase (con una pequeña espera para agrupar cambios seguidos). */
+  useEffect(() => {
+    const state: MapState = { shelves, floorNames, floorSubtitles };
+    const json = JSON.stringify(state);
+    currentJsonRef.current = json;
     try {
-      const state: SavedState = { shelves, floorNames, floorSubtitles };
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      localStorage.setItem(STORAGE_KEY, json);
     } catch {
-      /* almacenamiento no disponible: los cambios quedan solo en memoria */
+      /* almacenamiento local no disponible */
     }
-  }, [shelves, floorNames, floorSubtitles]);
+    if (!ready || json === lastSyncedRef.current) return;
+
+    setSyncStatus("saving");
+    const timeout = window.setTimeout(() => {
+      saveChainRef.current = saveChainRef.current
+        .then(() => saveMapState(state))
+        .then(() => {
+          lastSyncedRef.current = json;
+          if (currentJsonRef.current === json) setSyncStatus("saved");
+        })
+        .catch(() => setSyncStatus("error"));
+    }, 600);
+    return () => window.clearTimeout(timeout);
+  }, [ready, retryCount, shelves, floorNames, floorSubtitles]);
+
   const [activeFloor, setActiveFloor] = useState<number>(2);
   const [selectedShelf, setSelectedShelf] = useState<Shelf | null>(null);
   const [editMode, setEditMode] = useState(false);
+  editModeRef.current = editMode;
 
   /* ── handlers ── */
   const handleShelfClick = (shelf: Shelf) => {
@@ -196,6 +273,23 @@ export default function App() {
 
         {/* Edit mode toggle */}
         <div className="px-4 py-4">
+          <p
+            className="mb-2 flex items-center justify-center gap-1.5 text-xs font-semibold"
+            style={{ color: syncStatus === "error" ? "#E9683B" : "#9CA3AF" }}
+            aria-live="polite"
+          >
+            <span
+              className="size-1.5 rounded-full"
+              style={{
+                backgroundColor:
+                  syncStatus === "error" ? "#E9683B" : syncStatus === "saved" ? "#4CB979" : "#E4EB60",
+              }}
+            />
+            {syncStatus === "loading" && "Cargando cambios…"}
+            {syncStatus === "saving" && "Guardando…"}
+            {syncStatus === "saved" && "Cambios guardados"}
+            {syncStatus === "error" && "Sin conexión · no se guardó"}
+          </p>
           <button
             onClick={toggleEditMode}
             className="w-full flex items-center justify-center gap-2 py-2.5 text-sm font-bold transition-all duration-200"
