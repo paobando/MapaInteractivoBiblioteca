@@ -21,7 +21,7 @@ export default function ShelfPanel({ shelf, onClose }: Props) {
       {/* Colored header band */}
       <div
         className="px-5 py-4 flex items-start justify-between gap-3"
-        style={{ background: `linear-gradient(135deg, ${color}, ${color}cc)` }}
+        style={{ backgroundColor: color }}
       >
         <div>
           <p className="text-xs font-semibold uppercase tracking-widest" style={{ color: "rgba(255,255,255,0.65)" }}>
@@ -42,7 +42,6 @@ export default function ShelfPanel({ shelf, onClose }: Props) {
         <button
           onClick={onClose}
           className="rounded-full w-8 h-8 flex items-center justify-center transition-colors shrink-0 mt-0.5"
-          style={{ backgroundColor: "rgba(255,255,255,0.2)" }}
           aria-label="Cerrar"
         >
           <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
@@ -61,7 +60,7 @@ export default function ShelfPanel({ shelf, onClose }: Props) {
 
         {/* Description */}
         <div
-          className="rounded-2xl px-4 py-3"
+          className="px-4 py-3"
           style={{ backgroundColor: "#F5F6FA" }}
         >
           <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1.5">Contenido</p>
@@ -70,7 +69,7 @@ export default function ShelfPanel({ shelf, onClose }: Props) {
 
         {/* Location hint */}
         <div
-          className="flex items-center gap-3 rounded-2xl px-4 py-3"
+          className="flex items-center gap-3 px-4 py-3"
           style={{ backgroundColor: `${color}0D`, border: `1px solid ${color}22` }}
         >
           <svg width="18" height="18" viewBox="0 0 18 18" fill="none" className="shrink-0">

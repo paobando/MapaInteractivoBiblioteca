@@ -43,6 +43,17 @@ body {
   background-size: 48px 28px;
 }
 
+.floor-grid-pattern {
+  background-color: #fff;
+  background-image:
+    linear-gradient(#f1f1f1 1px, transparent 1px),
+    linear-gradient(90deg, #f1f1f1 1px, transparent 1px),
+    linear-gradient(#f7f7f7 1px, transparent 1px),
+    linear-gradient(90deg, #f7f7f7 1px, transparent 1px);
+  background-position: 0 0, 0 0, 3px 3px, 3px 3px;
+  background-size: 12px 12px, 12px 12px, 6px 6px, 6px 6px;
+}
+
 .map-label {
   position: absolute;
   color: #000;

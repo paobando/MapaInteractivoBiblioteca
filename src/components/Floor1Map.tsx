@@ -16,45 +16,75 @@ type Props = {
 function FloorPlan() {
   return (
     <div className="relative size-full bg-white" aria-label="Plano del primer piso">
-      <div className="absolute left-[485px] top-[54px] flex h-[165px] w-[124px] items-center justify-center bg-[#f6f6f6]">
-        <span className="-rotate-90 font-['Plus_Jakarta_Sans:Regular'] text-[12px] text-black">Oficina Biblioteca</span>
+      <div className="floor-grid-pattern absolute left-[309px] top-[54px] h-[165px] w-[174px]" />
+      <div className="floor-grid-pattern absolute left-[309px] top-[466px] h-[165px] w-[170px]" />
+
+      <div className="absolute left-[486px] top-[54px] flex h-[165px] w-[124px] items-center justify-center bg-[#f6f6f6]">
+        <span className="w-[91px] text-center font-['Plus_Jakarta_Sans:Regular'] text-[12px] text-black">Oficina Biblioteca</span>
       </div>
-      <div className="absolute left-[62px] top-[54px] flex h-[165px] w-[245px] items-center justify-center bg-[#f6f6f6]">
+      <div className="absolute left-[62px] top-[54px] flex h-[165px] w-[244px] items-center justify-center bg-[#f6f6f6]">
         <span className="w-[137px] font-['Plus_Jakarta_Sans:Regular'] text-[12px] text-black">
           Oficina de innovación educativa
         </span>
       </div>
-      <div className="absolute left-[113px] top-[466px] flex h-[165px] w-[194px] items-center justify-center bg-[#f6f6f6]">
+      <div className="absolute left-[112px] top-[466px] flex h-[165px] w-[194px] items-center justify-center bg-[#f6f6f6]">
         <span className="font-['Plus_Jakarta_Sans:Regular'] text-[12px] text-black">Sala Oasis</span>
       </div>
-      <div className="absolute left-[62px] top-[465px] flex h-[165px] w-[47px] items-center justify-center bg-[#f6f6f6]">
+      <div className="absolute left-[62px] top-[466px] flex h-[165px] w-[47px] items-center justify-center bg-[#f6f6f6]">
         <span className="-rotate-90 whitespace-nowrap font-['Plus_Jakarta_Sans:Regular'] text-[12px] text-black">Sala patrimonial</span>
       </div>
-      <div className="absolute left-[310px] top-[541px] flex h-[89px] w-[71px] items-center justify-center bg-[#f6f6f6]">
+      <div className="absolute left-[309px] top-[542px] h-[89px] w-[71px] bg-[#f6f6f6]" />
+      <div className="absolute left-[321px] top-[568px] flex w-[46px] flex-col items-center gap-[3px]">
+        <img src="/assets/48d4c.svg" alt="" width="21" height="21" />
         <span className="font-['Plus_Jakarta_Sans:Regular'] text-[10px] text-black">Escaleras</span>
       </div>
-      <div className="absolute left-[441px] top-[527px] h-[39px] w-[36px] bg-[#f6f6f6]" />
+      <div className="absolute left-[443px] top-[527px] h-[39px] w-[36px] bg-[#f6f6f6]" />
+      <div className="absolute left-[433px] top-[570px] h-[60px] w-[46px] bg-[#f6f6f6]" />
+      <img
+        className="absolute left-[449px] top-[535px]"
+        src="/assets/34366.svg"
+        alt="Acceso para personas con movilidad reducida"
+        width="24"
+        height="24"
+      />
+      <img
+        className="absolute left-[445px] top-[590px]"
+        src="/assets/38d0f.svg"
+        alt="Cafetería"
+        width="24"
+        height="24"
+      />
       <img className="absolute left-[385px] top-[465px]" src="/assets/40496.svg" alt="" width="32" height="32" />
-      <div className="absolute left-[386px] top-[541px] flex size-[42px] items-center justify-center bg-[#f6f6f6]">
-        <img src="/assets/2f834.svg" alt="Ascensor" width="23" height="28" />
+      <div className="absolute left-[386px] top-[542px] flex size-[42px] items-center justify-center bg-[#f6f6f6]">
+        <img src="/assets/912b0.svg" alt="Ascensor" width="23" height="28.1414" />
       </div>
-      <div className="absolute left-[311px] top-[54px] flex h-[89px] w-[92px] items-center justify-center bg-[#f6f6f6]">
+      <div className="absolute left-[310px] top-[54px] h-[89px] w-[92px] bg-[#f6f6f6]" />
+      <div className="absolute left-[333px] top-[80px] flex w-[46px] flex-col items-center gap-[3px]">
+        <img src="/assets/48d4c.svg" alt="" width="21" height="21" />
         <span className="font-['Plus_Jakarta_Sans:Regular'] text-[10px] text-black">Escaleras</span>
       </div>
-      <div className="absolute left-[501px] top-[465px] flex h-[165px] w-[48px] items-center justify-center bg-[#f6f6f6]">
+      <div className="absolute left-[482px] top-[466px] flex h-[165px] w-[16px] items-center justify-center bg-black">
+        <span className="-rotate-90 whitespace-nowrap font-['Plus_Jakarta_Sans:SemiBold'] text-[8px] text-white">Salas de profesores</span>
+      </div>
+      <div className="absolute left-[498px] top-[466px] flex h-[165px] w-[48px] items-center justify-center bg-[#f6f6f6]">
         <span className="-rotate-90 whitespace-nowrap font-['Plus_Jakarta_Sans:Regular'] text-[12px] text-black">El encuentro</span>
       </div>
-      <div className="absolute left-[307px] top-[223px] flex h-[239px] w-[302px] items-center justify-center bg-[#f6f6f6]">
+      <div className="absolute left-[309px] top-[223px] flex h-[239px] w-[300px] items-center justify-center bg-[#f6f6f6]">
         <span className="font-['Plus_Jakarta_Sans:Regular'] text-[12px] text-black">Hall de biblioteca</span>
       </div>
       <div className="absolute left-[553px] top-[465px] flex h-[165px] w-[133px] items-center justify-center bg-[#f6f6f6]">
-        <span className="-rotate-90 whitespace-nowrap font-['Plus_Jakarta_Sans:Regular'] text-[12px] text-black">Marketing zone</span>
+        <span className="font-['Plus_Jakarta_Sans:Regular'] text-[12px] text-black">Marketing zone</span>
       </div>
+
+      <div className="absolute left-[309px] top-[223px] h-[8px] w-[120px] bg-icesi-purple" />
+      <div className="absolute left-[309px] top-[454px] h-[8px] w-[120px] bg-icesi-purple" />
+      <div className="absolute left-[309px] top-[277px] h-[131px] w-[8px] bg-icesi-purple" />
+      <div className="absolute left-[601px] top-[277px] h-[131px] w-[8px] bg-icesi-purple" />
 
       {[
         { top: 54, label: "103B" },
         { top: 111, label: "102B" },
-        { top: 168, label: "101B" },
+        { top: 167, label: "101B" },
       ].map((room) => (
         <div
           key={room.label}
@@ -65,11 +95,8 @@ function FloorPlan() {
         </div>
       ))}
 
-      <div className="absolute left-[613px] top-[54px] flex h-[166px] w-[20px] items-center justify-center bg-black">
-        <span className="-rotate-90 whitespace-nowrap font-['Plus_Jakarta_Sans:SemiBold'] text-[10px] text-white">Salas de estudio</span>
-      </div>
-      <div className="absolute left-[481px] top-[465px] flex h-[165px] w-[20px] items-center justify-center bg-black">
-        <span className="-rotate-90 whitespace-nowrap font-['Plus_Jakarta_Sans:SemiBold'] text-[10px] text-white">Salas de profesores</span>
+      <div className="absolute left-[613px] top-[54px] flex h-[165px] w-[16px] items-center justify-center bg-black">
+        <span className="-rotate-90 whitespace-nowrap font-['Plus_Jakarta_Sans:SemiBold'] text-[8px] text-white">Salas de estudio</span>
       </div>
     </div>
   );

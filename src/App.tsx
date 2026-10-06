@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { shelves as initialShelves, type Shelf } from "./data/libraryData";
+import { projectId, publicAnonKey } from "../utils/supabase/info";
 import FloorMap from "./components/FloorMap";
 import Floor1Map from "./components/Floor1Map";
 import Floor2Map from "./components/Floor2Map";
@@ -10,15 +11,80 @@ import EditPanel from "./components/EditPanel";
 const FLOORS = [1, 2, 3] as const;
 
 const floorMeta: Record<number, { full: string; zones: string }> = {
-  1: { full: "Primer Piso",   zones: "Hall de biblioteca · Sala Oasis · Oficinas · Salas de estudio" },
-  2: { full: "Segundo Piso",  zones: "Literatura · Sala general · United Way · Salas de estudio" },
-  3: { full: "Tercer Piso",   zones: "Salas de estudio · Salas de video · Sala de escucha" },
+  1: { full: "Primer piso",   zones: "Hall de biblioteca · Sala Oasis · Oficinas · Salas de estudio" },
+  2: { full: "Segundo piso",  zones: "Literatura · Sala general · United Way · Salas de estudio · Zona de préstamo" },
+  3: { full: "Tercer piso",   zones: "Salas de estudio · Salas de video · Sala de escucha · SEI" },
 };
 
-let nextId = 100;
+const STORAGE_KEY = "library-map-elements";
+const MAP_API_URL = `https://${projectId}.supabase.co/functions/v1/make-server-509cd806/library-map`;
+
+type StoredMap = {
+  shelves: Shelf[];
+  updatedAt: number;
+};
+
+function loadSavedMap(): StoredMap {
+  try {
+    const saved = window.localStorage.getItem(STORAGE_KEY);
+    if (!saved) return { shelves: initialShelves, updatedAt: 0 };
+    const parsed = JSON.parse(saved);
+    if (Array.isArray(parsed)) {
+      return { shelves: parsed, updatedAt: 1 };
+    }
+    if (Array.isArray(parsed?.shelves) && typeof parsed.updatedAt === "number") {
+      return parsed;
+    }
+    return { shelves: initialShelves, updatedAt: 0 };
+  } catch {
+    return { shelves: initialShelves, updatedAt: 0 };
+  }
+}
+
+function saveMapLocally(map: StoredMap) {
+  try {
+    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(map));
+  } catch {
+    // Keep the current session usable if browser storage is unavailable.
+  }
+}
+
+type RemoteMapResult = {
+  available: boolean;
+  map: StoredMap | null;
+};
+
+async function loadMapFromSupabase(): Promise<RemoteMapResult> {
+  const response = await fetch(MAP_API_URL, {
+    headers: { Authorization: `Bearer ${publicAnonKey}` },
+  });
+  if (response.status === 404) return { available: false, map: null };
+  if (!response.ok) throw new Error(`Error ${response.status} al cargar el mapa`);
+  const data = await response.json();
+  return { available: true, map: data.map ?? null };
+}
+
+async function saveMapToSupabase(map: StoredMap): Promise<boolean> {
+  const response = await fetch(MAP_API_URL, {
+    method: "PUT",
+    headers: {
+      Authorization: `Bearer ${publicAnonKey}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(map),
+  });
+  if (response.status === 404) return false;
+  if (!response.ok) throw new Error(`Error ${response.status} al guardar el mapa`);
+  return true;
+}
 
 export default function App() {
-  const [shelves, setShelves] = useState<Shelf[]>(initialShelves ?? []);
+  const initialMapRef = useRef<StoredMap>(loadSavedMap());
+  const currentMapRef = useRef<StoredMap>(initialMapRef.current);
+  const lastUpdatedRef = useRef(initialMapRef.current.updatedAt);
+  const pendingSaveRef = useRef<number | null>(null);
+  const supabaseAvailableRef = useRef<boolean | null>(null);
+  const [shelves, setShelves] = useState<Shelf[]>(initialMapRef.current.shelves);
   const [floorNames, setFloorNames] = useState<Record<number, string>>({
     1: floorMeta[1].full,
     2: floorMeta[2].full,
@@ -33,18 +99,70 @@ export default function App() {
   const [selectedShelf, setSelectedShelf] = useState<Shelf | null>(null);
   const [editMode, setEditMode] = useState(false);
 
+  const syncMap = (map: StoredMap) => {
+    if (supabaseAvailableRef.current === false) return;
+    if (pendingSaveRef.current !== null) window.clearTimeout(pendingSaveRef.current);
+    pendingSaveRef.current = window.setTimeout(() => {
+      saveMapToSupabase(map)
+        .then((available) => {
+          supabaseAvailableRef.current = available;
+        })
+        .catch(() => {
+          supabaseAvailableRef.current = false;
+        });
+    }, 250);
+  };
+
+  useEffect(() => {
+    let active = true;
+    loadMapFromSupabase()
+      .then(({ available, map: remoteMap }) => {
+        if (!active) return;
+        supabaseAvailableRef.current = available;
+        if (!available) return;
+        const localMap = currentMapRef.current;
+        if (remoteMap && remoteMap.updatedAt > localMap.updatedAt) {
+          lastUpdatedRef.current = remoteMap.updatedAt;
+          currentMapRef.current = remoteMap;
+          setShelves(remoteMap.shelves);
+          saveMapLocally(remoteMap);
+        } else {
+          syncMap(localMap);
+        }
+      })
+      .catch(() => {
+        supabaseAvailableRef.current = false;
+      });
+    return () => {
+      active = false;
+      if (pendingSaveRef.current !== null) window.clearTimeout(pendingSaveRef.current);
+    };
+  }, []);
+
+  const updateShelves = (updater: (current: Shelf[]) => Shelf[]) => {
+    setShelves((current) => {
+      const nextShelves = updater(current);
+      const map = { shelves: nextShelves, updatedAt: Date.now() };
+      lastUpdatedRef.current = map.updatedAt;
+      currentMapRef.current = map;
+      saveMapLocally(map);
+      syncMap(map);
+      return nextShelves;
+    });
+  };
+
   /* ── handlers ── */
   const handleShelfClick = (shelf: Shelf) => {
     setSelectedShelf((prev) => (prev?.id === shelf.id ? null : shelf));
   };
 
   const handleShelfMove = (id: string, x: number, y: number) => {
-    setShelves((prev) => prev.map((s) => (s.id === id ? { ...s, x, y } : s)));
+    updateShelves((current) => current.map((shelf) => (shelf.id === id ? { ...shelf, x, y } : shelf)));
   };
 
   const handleMapClick = (x: number, y: number) => {
     const newShelf: Shelf = {
-      id: `new-${nextId++}`,
+      id: `new-${crypto.randomUUID()}`,
       label: "T?",
       floor: activeFloor,
       x,
@@ -56,18 +174,18 @@ export default function App() {
       color: "#5454E9",
       kind: "shelf",
     };
-    setShelves((prev) => [...prev, newShelf]);
+    updateShelves((current) => [...current, newShelf]);
     setSelectedShelf(newShelf);
   };
 
   const handleSave = (updated: Shelf) => {
-    setShelves((prev) => prev.map((s) => (s.id === updated.id ? updated : s)));
+    updateShelves((current) => current.map((shelf) => (shelf.id === updated.id ? updated : shelf)));
     setSelectedShelf(updated);
   };
 
   const handleDelete = () => {
     if (!selectedShelf) return;
-    setShelves((prev) => prev.filter((s) => s.id !== selectedShelf.id));
+    updateShelves((current) => current.filter((shelf) => shelf.id !== selectedShelf.id));
     setSelectedShelf(null);
   };
 
@@ -100,20 +218,9 @@ export default function App() {
         {/* Brand */}
         <div className="px-5 pt-5 pb-4">
           <div className="flex items-center gap-3">
-            <div
-              className="w-9 h-9 rounded-2xl flex items-center justify-center shrink-0"
-              style={{ backgroundColor: "#5454E9" }}
-            >
-              <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                <rect x="3" y="4" width="3" height="12" rx="1.5" fill="white" />
-                <rect x="7.5" y="4" width="3" height="12" rx="1.5" fill="white" fillOpacity="0.7" />
-                <rect x="12" y="4" width="5" height="12" rx="1.5" fill="white" fillOpacity="0.4" />
-              </svg>
-            </div>
-            <div>
+                        <div>
               <h1 className="text-sm font-bold text-gray-900 leading-tight">Mapa de Biblioteca</h1>
-              <p className="text-xs text-gray-400 leading-tight">Clasificación Dewey</p>
-            </div>
+              </div>
           </div>
         </div>
 
@@ -149,7 +256,7 @@ export default function App() {
                   <div className="min-w-0">
                     <p className="text-sm font-bold leading-tight truncate"
                        style={{ color: active ? "white" : "#374151" }}>
-                      {floorNames[f]}
+                      {floorMeta[f].full}
                     </p>
                   </div>
                 </button>
@@ -171,7 +278,11 @@ export default function App() {
             style={
               editMode
                 ? { backgroundColor: "#E9683B", color: "white", boxShadow: "0 4px 14px #E9683B44" }
-                : { backgroundColor: "#5454E914", color: "#5454E9" }
+                : {
+                    backgroundColor: "rgb(0, 0, 0)",
+                    color: "rgb(255, 255, 255)",
+                    boxShadow: "rgba(0, 0, 0, 0.2) 0px 4px 14px 0px",
+                  }
             }
           >
             {editMode ? (
@@ -186,7 +297,7 @@ export default function App() {
                 <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
                   <path
                     d="M9.5 2a1.5 1.5 0 0 1 2.121 2.121L5.121 10.62l-2.828.707.707-2.828L9.5 2Z"
-                    stroke="#5454E9" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"
+                    stroke="rgb(255, 255, 255)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"
                   />
                 </svg>
                 Editar mapa
