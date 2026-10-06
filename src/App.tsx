@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { shelves as initialShelves, type Shelf } from "./data/libraryData";
 import FloorMap from "./components/FloorMap";
 import Floor1Map from "./components/Floor1Map";
@@ -15,20 +15,51 @@ const floorMeta: Record<number, { full: string; zones: string }> = {
   3: { full: "Tercer Piso",   zones: "Salas de estudio · Salas de video · Sala de escucha" },
 };
 
-let nextId = 100;
+const STORAGE_KEY = "mapa-biblioteca:v1";
+
+type SavedState = {
+  shelves: Shelf[];
+  floorNames: Record<number, string>;
+  floorSubtitles: Record<number, string>;
+};
+
+/* Los cambios se guardan en localStorage para que sobrevivan a recargas. */
+function loadSaved(): Partial<SavedState> {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    return raw ? (JSON.parse(raw) as Partial<SavedState>) : {};
+  } catch {
+    return {};
+  }
+}
+
+const saved = loadSaved();
 
 export default function App() {
-  const [shelves, setShelves] = useState<Shelf[]>(initialShelves ?? []);
+  const [shelves, setShelves] = useState<Shelf[]>(
+    Array.isArray(saved.shelves) ? saved.shelves : (initialShelves ?? []),
+  );
   const [floorNames, setFloorNames] = useState<Record<number, string>>({
     1: floorMeta[1].full,
     2: floorMeta[2].full,
     3: floorMeta[3].full,
+    ...saved.floorNames,
   });
   const [floorSubtitles, setFloorSubtitles] = useState<Record<number, string>>({
     1: floorMeta[1].zones,
     2: floorMeta[2].zones,
     3: floorMeta[3].zones,
+    ...saved.floorSubtitles,
   });
+
+  useEffect(() => {
+    try {
+      const state: SavedState = { shelves, floorNames, floorSubtitles };
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    } catch {
+      /* almacenamiento no disponible: los cambios quedan solo en memoria */
+    }
+  }, [shelves, floorNames, floorSubtitles]);
   const [activeFloor, setActiveFloor] = useState<number>(2);
   const [selectedShelf, setSelectedShelf] = useState<Shelf | null>(null);
   const [editMode, setEditMode] = useState(false);
@@ -44,7 +75,7 @@ export default function App() {
 
   const handleMapClick = (x: number, y: number) => {
     const newShelf: Shelf = {
-      id: `new-${nextId++}`,
+      id: `new-${Date.now()}`,
       label: "T?",
       floor: activeFloor,
       x,
@@ -314,6 +345,7 @@ export default function App() {
           >
             {editMode ? (
               <EditPanel
+                key={liveSelected.id}
                 shelf={liveSelected}
                 onSave={handleSave}
                 onDelete={handleDelete}
