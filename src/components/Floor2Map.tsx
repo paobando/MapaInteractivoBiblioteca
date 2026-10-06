@@ -20,63 +20,104 @@ type Props = {
 function FloorPlan() {
   return (
     <div className="relative size-full bg-white" aria-label="Plano del segundo piso">
-      <div className="floor-pattern absolute left-[50px] top-[410px] h-[220px] w-[243px]" />
-      <div className="floor-pattern absolute left-[459px] top-[411px] h-[220px] w-[223px]" />
-      <div className="floor-pattern absolute left-[297px] top-[147px] h-[391px] w-[158px]" />
-      <div className="floor-pattern absolute left-[174px] top-[237px] h-[42px] w-[119px]" />
-      <div className="floor-pattern absolute left-[459px] top-[127px] h-[157px] w-[64px]" />
+      <div className="floor-grid-pattern absolute left-[58px] top-[395px] size-[235px]" />
+      <div className="floor-grid-pattern absolute left-[459px] top-[395px] h-[235px] w-[223px]" />
+      <div className="floor-grid-pattern absolute left-[296px] top-[147px] h-[483px] w-[160px]" />
+      <div className="floor-grid-pattern absolute left-[174px] top-[237px] h-[42px] w-[119px]" />
+      <div className="floor-grid-pattern absolute left-[459px] top-[127px] h-[152px] w-[64px]" />
 
-      <div className="absolute left-[403px] top-[127px] flex size-[52px] items-center justify-center bg-icesi-purple">
-        <img src="/assets/0bc1b.svg" alt="Baño de mujeres" width="24" height="24" />
+      <div className="absolute left-[400px] top-[123px] flex size-[56px] items-center justify-center bg-icesi-purple">
+        <img src="/assets/b2410.svg" alt="Baño de mujeres" width="25.8462" height="25.8462" />
       </div>
       <div className="absolute left-[174px] top-[54px] h-[179px] w-[119px] bg-[#f6f6f6]" />
-      <div className="absolute left-[528px] top-[54px] h-[230px] w-[154px] bg-[#f6f6f6]" />
-      <div className="absolute left-[459px] top-[54px] h-[69px] w-[64px] bg-[#f6f6f6]" />
-      <div className="absolute left-[297px] top-[541px] h-[89px] w-[71px] bg-[#f6f6f6]" />
-      <div className="absolute left-[297px] top-[54px] h-[89px] w-[101px] bg-[#f6f6f6]" />
+      <div className="absolute left-[528px] top-[54px] h-[225px] w-[154px] bg-[#f6f6f6]" />
+      <div className="absolute left-[459px] top-[54px] h-[69px] w-[64px] bg-[#f6f6f6] text-center" />
+      <div className="absolute left-[296px] top-[520px] h-[110px] w-[67px] bg-[#f6f6f6]" />
+      <div className="absolute left-[306px] top-[557px] flex w-[46px] flex-col items-center gap-[3px]">
+        <img src="/assets/48d4c.svg" alt="" width="21" height="21" />
+        <span className="font-['Plus_Jakarta_Sans:Regular'] text-[10px] text-black">Escaleras</span>
+      </div>
+      <div className="absolute left-[296px] top-[54px] h-[89px] w-[101px] bg-[#f6f6f6]" />
+      <div className="absolute left-[323px] top-[80px] flex w-[46px] flex-col items-center gap-[3px]">
+        <img src="/assets/48d4c.svg" alt="" width="21" height="21" />
+        <span className="font-['Plus_Jakarta_Sans:Regular'] text-[10px] text-black">Escaleras</span>
+      </div>
       <div className="absolute left-[75px] top-[54px] h-[225px] w-[95px] bg-[#f6f6f6]" />
       <div className="absolute left-[196px] top-[470px] h-[160px] w-[97px] bg-[#f6f6f6]" />
-      <div className="absolute left-[574px] top-[548px] h-[60px] w-[52px] bg-[#f6f6f6]" />
+      <div className="absolute left-[574px] top-[548px] h-[66px] w-[52px] bg-[#f6f6f6]" />
       <div className="absolute left-[469px] top-[512px] h-[31px] w-[45px] bg-[#f6f6f6]" />
-      <div className="absolute left-[630px] top-[548px] h-[60px] w-[52px] bg-[#f6f6f6]" />
-      <div className="absolute left-[469px] top-[548px] h-[60px] w-[101px] bg-[#f6f6f6]" />
-      {[410, 466, 522, 578].map((top) => (
-        <div key={top} className="absolute left-[75px] h-[52px] w-[60px] bg-[#f6f6f6]" style={{ top }} />
+      <div className="absolute left-[346px] top-[309px] h-[62px] w-[63px] bg-[#f6f6f6]" />
+      <div className="absolute left-[630px] top-[548px] h-[66px] w-[52px] bg-[#f6f6f6]" />
+      <div className="absolute left-[469px] top-[548px] h-[66px] w-[101px] bg-[#f6f6f6]" />
+      {[395, 455, 515, 575].map((top) => (
+        <div key={top} className="absolute left-[74px] h-[55px] w-[60px] bg-[#f6f6f6]" style={{ top }} />
       ))}
-      <div className="absolute left-[403px] top-[240px] h-[6px] w-[52px] bg-black" />
+      <div className="absolute left-[404px] top-[227px] h-[8px] w-[52px] bg-[#c4c4c4]" />
+      <div className="absolute left-[374px] top-[447px] h-[33px] w-[8px] bg-[#101828]" />
+      <div className="absolute left-[382px] top-[447px] h-[33px] w-[84px] bg-[#f6f6f6]" />
+      <div className="absolute left-[365px] top-[520px] size-[42px] bg-[#f6f6f6]" />
+      <img className="absolute left-[395px] top-[520px]" src="/assets/c0fa7.svg" alt="" width="35" height="110" />
+      <div className="absolute left-[433px] top-[520px] h-[110px] w-[33px] bg-[#f6f6f6]" />
+      <img className="absolute left-[375px] top-[527px]" src="/assets/f4b65.svg" alt="Ascensor" width="23" height="28.1414" />
 
-      <div className="absolute left-[50px] top-[410px] flex h-[220px] w-[25px] items-center justify-center bg-black">
-        <span className="-rotate-90 whitespace-nowrap font-['Plus_Jakarta_Sans:SemiBold'] text-[12px] text-white">
+      <div className="absolute left-[153px] top-[489px] size-[22px] bg-icesi-purple" />
+      <div className="absolute left-[153px] top-[523px] size-[22px] bg-icesi-purple" />
+      <div className="absolute left-[153px] top-[557px] size-[22px] bg-icesi-purple" />
+      <div className="absolute left-[153px] top-[591px] size-[22px] bg-icesi-purple" />
+      <div className="absolute left-[196px] top-[395px] h-[8px] w-[97px] bg-icesi-purple" />
+      <div className="absolute left-[231px] top-[271px] h-[8px] w-[62px] bg-icesi-purple" />
+      <div className="absolute left-[296px] top-[279px] h-[116px] w-[8px] bg-icesi-purple" />
+      <div className="absolute left-[448px] top-[279px] h-[116px] w-[8px] bg-icesi-purple" />
+      <div className="absolute left-[459px] top-[395px] h-[8px] w-[107px] bg-icesi-purple" />
+
+      <div className="absolute left-[58px] top-[395px] flex h-[235px] w-[16px] items-center justify-center bg-black">
+        <span className="-rotate-90 whitespace-nowrap font-['Plus_Jakarta_Sans:SemiBold'] text-[8px] text-white">
           Salas de estudio
         </span>
       </div>
-      <div className="absolute left-[459px] top-[606px] flex h-[25px] w-[223px] items-center justify-center bg-black">
-        <span className="font-['Plus_Jakarta_Sans:SemiBold'] text-[12px] text-white">Salas de estudio</span>
+      <div className="absolute left-[469px] top-[614px] flex h-[16px] w-[213px] items-center justify-center bg-black">
+        <span className="font-['Plus_Jakarta_Sans:SemiBold'] text-[8px] text-white">Salas de estudio</span>
       </div>
-      <div className="absolute left-[50px] top-[54px] flex h-[225px] w-[25px] items-center justify-center bg-black">
-        <span className="-rotate-90 whitespace-nowrap font-['Plus_Jakarta_Sans:SemiBold'] text-[12px] text-white">
+      <div className="absolute left-[58px] top-[54px] flex h-[225px] w-[16px] items-center justify-center bg-black">
+        <span className="-rotate-90 whitespace-nowrap font-['Plus_Jakarta_Sans:SemiBold'] text-[8px] text-white">
           Salas de profesores
         </span>
       </div>
 
-      <span className="map-label left-[89px] top-[428px]">205B</span>
-      <span className="map-label left-[89px] top-[484px]">206B</span>
-      <span className="map-label left-[89px] top-[540px]">207B</span>
-      <span className="map-label left-[89px] top-[596px]">208B</span>
-      <span className="map-label left-[222px] top-[535px] w-[44px]">Sala general</span>
-      <span className="map-label left-[309px] top-[579px]" style={{ fontSize: 10 }}>Escaleras</span>
+      <span className="map-label left-[88px] top-[415px]">205B</span>
+      <span className="map-label left-[88px] top-[475px]">206B</span>
+      <span className="map-label left-[88px] top-[535px]">207B</span>
+      <span className="map-label left-[88px] top-[595px]">208B</span>
+      <span className="map-label left-[222px] top-[535px] w-[44px] text-center">Sala general</span>
       <span className="map-label left-[100px] top-[159px] w-[44px]">La idea</span>
-      <span className="map-label left-[212px] top-[139px]" style={{ fontSize: 10 }}>Literatura</span>
-      <span className="map-label left-[571px] top-[161px]">United Way</span>
+      <span className="map-label left-[212px] top-[141px]" style={{ fontSize: 10 }}>Literatura</span>
+      <span className="map-label left-[572px] top-[159px]">United Way</span>
       <span className="map-label left-[463px] top-[78px] w-[55px]" style={{ fontSize: 8 }}>Coordinación de servicios</span>
-      <span className="map-label left-[324px] top-[92px]" style={{ fontSize: 10 }}>Escaleras</span>
-      <span className="map-label left-[503px] top-[572px]">204B</span>
-      <span className="map-label left-[584px] top-[572px]">203B</span>
-      <span className="map-label left-[640px] top-[572px]">202B</span>
+      <span className="map-label left-[503px] top-[573px]">204B</span>
+      <span className="map-label left-[584px] top-[573px]">203B</span>
+      <span className="map-label left-[640px] top-[573px]">202B</span>
 
-      <div className="absolute left-[386px] top-[541px] flex size-[42px] items-center justify-center bg-[#f6f6f6]">
-        <img src="/assets/43a4f.svg" alt="Ascensor" width="23" height="28" />
-      </div>
+      {/* Mobiliario y divisiones */}
+      <div className="absolute left-[174px] top-[54px] h-[8px] w-[119px] bg-[#c4c4c4]" />
+      <div className="absolute left-[174px] top-[104px] h-[129px] w-[8px] bg-[#c4c4c4]" />
+      <div className="absolute left-[285px] top-[86px] h-[54px] w-[8px] bg-[#c4c4c4]" />
+      <div className="absolute left-[273px] top-[167px] h-[66px] w-[8px] bg-[#c4c4c4]" />
+      <div className="absolute left-[459px] top-[127px] h-[100px] w-[8px] bg-[#c4c4c4]" />
+      <div className="absolute left-[515px] top-[127px] h-[100px] w-[8px] bg-[#c4c4c4]" />
+
+      <div className="absolute left-[213px] top-[97px] h-[32px] w-[8px] bg-[#c4c4c4]" />
+      <div className="absolute left-[221px] top-[89px] h-[8px] w-[32px] bg-[#c4c4c4]" />
+      <div className="absolute left-[242px] top-[165px] h-[32px] w-[8px] bg-[#c4c4c4]" />
+      <div className="absolute left-[210px] top-[197px] h-[8px] w-[32px] bg-[#c4c4c4]" />
+
+      <div className="absolute left-[520px] top-[455px] h-[32px] w-[8px] bg-[#c4c4c4]" />
+      <div className="absolute left-[528px] top-[447px] h-[8px] w-[32px] bg-[#c4c4c4]" />
+      <div className="absolute left-[520px] top-[532px] h-[8px] w-[32px] bg-[#c4c4c4]" />
+      <div className="absolute left-[588px] top-[447px] h-[8px] w-[32px] bg-[#c4c4c4]" />
+      <div className="absolute left-[579px] top-[395px] h-[8px] w-[103px] bg-[#c4c4c4]" />
+      <div className="absolute left-[594px] top-[522px] h-[8px] w-[53px] bg-[#c4c4c4]" />
+      <div className="absolute left-[647px] top-[469px] h-[53px] w-[8px] bg-[#c4c4c4]" />
+      <div className="absolute left-[674px] top-[517px] h-[31px] w-[8px] bg-[#c4c4c4]" />
     </div>
   );
 }

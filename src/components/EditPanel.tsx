@@ -47,9 +47,7 @@ export default function EditPanel({ shelf, onSave, onDelete, onClose }: Props) {
       {/* Header */}
       <div
         className="px-5 py-3.5 flex items-center justify-between gap-3"
-        style={{
-          background: `linear-gradient(135deg, ${color}, ${color}cc)`,
-        }}
+        style={{ backgroundColor: color }}
       >
         <div className="flex items-center gap-2">
           <svg width="14" height="14" viewBox="0 0 14 14" fill="none">

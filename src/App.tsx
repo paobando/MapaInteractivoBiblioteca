@@ -11,12 +11,14 @@ import { fetchMapState, saveMapState, type MapState } from "./lib/mapStore";
 const FLOORS = [1, 2, 3] as const;
 
 const floorMeta: Record<number, { full: string; zones: string }> = {
-  1: { full: "Primer Piso",   zones: "Hall de biblioteca · Sala Oasis · Oficinas · Salas de estudio" },
-  2: { full: "Segundo Piso",  zones: "Literatura · Sala general · United Way · Salas de estudio" },
-  3: { full: "Tercer Piso",   zones: "Salas de estudio · Salas de video · Sala de escucha" },
+  1: { full: "Primer piso",   zones: "Hall de biblioteca · Sala Oasis · Oficinas · Salas de estudio" },
+  2: { full: "Segundo piso",  zones: "Literatura · Sala general · United Way · Salas de estudio · Zona de préstamo" },
+  3: { full: "Tercer piso",   zones: "Salas de estudio · Salas de video · Sala de escucha · SEI" },
 };
 
 const STORAGE_KEY = "mapa-biblioteca:v1";
+/* Clave que usaba la versión anterior de Make (solo guardaba en el navegador). */
+const LEGACY_STORAGE_KEY = "library-map-elements";
 const REFRESH_MS = 30_000;
 
 const defaultFloorNames: Record<number, string> = {
@@ -44,7 +46,11 @@ function normalize(state: Partial<MapState> | null | undefined): MapState {
 function loadCached(): Partial<MapState> | null {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    return raw ? (JSON.parse(raw) as Partial<MapState>) : null;
+    if (raw) return JSON.parse(raw) as Partial<MapState>;
+    const legacy = JSON.parse(localStorage.getItem(LEGACY_STORAGE_KEY) ?? "null");
+    if (Array.isArray(legacy)) return { shelves: legacy };
+    if (Array.isArray(legacy?.shelves)) return { shelves: legacy.shelves };
+    return null;
   } catch {
     return null;
   }
@@ -147,12 +153,12 @@ export default function App() {
   };
 
   const handleShelfMove = (id: string, x: number, y: number) => {
-    setShelves((prev) => prev.map((s) => (s.id === id ? { ...s, x, y } : s)));
+    setShelves((current) => current.map((shelf) => (shelf.id === id ? { ...shelf, x, y } : shelf)));
   };
 
   const handleMapClick = (x: number, y: number) => {
     const newShelf: Shelf = {
-      id: `new-${Date.now()}`,
+      id: `new-${crypto.randomUUID()}`,
       label: "T?",
       floor: activeFloor,
       x,
@@ -164,18 +170,18 @@ export default function App() {
       color: "#5454E9",
       kind: "shelf",
     };
-    setShelves((prev) => [...prev, newShelf]);
+    setShelves((current) => [...current, newShelf]);
     setSelectedShelf(newShelf);
   };
 
   const handleSave = (updated: Shelf) => {
-    setShelves((prev) => prev.map((s) => (s.id === updated.id ? updated : s)));
+    setShelves((current) => current.map((shelf) => (shelf.id === updated.id ? updated : shelf)));
     setSelectedShelf(updated);
   };
 
   const handleDelete = () => {
     if (!selectedShelf) return;
-    setShelves((prev) => prev.filter((s) => s.id !== selectedShelf.id));
+    setShelves((current) => current.filter((shelf) => shelf.id !== selectedShelf.id));
     setSelectedShelf(null);
   };
 
@@ -208,20 +214,9 @@ export default function App() {
         {/* Brand */}
         <div className="px-5 pt-5 pb-4">
           <div className="flex items-center gap-3">
-            <div
-              className="w-9 h-9 rounded-2xl flex items-center justify-center shrink-0"
-              style={{ backgroundColor: "#5454E9" }}
-            >
-              <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                <rect x="3" y="4" width="3" height="12" rx="1.5" fill="white" />
-                <rect x="7.5" y="4" width="3" height="12" rx="1.5" fill="white" fillOpacity="0.7" />
-                <rect x="12" y="4" width="5" height="12" rx="1.5" fill="white" fillOpacity="0.4" />
-              </svg>
-            </div>
-            <div>
+                        <div>
               <h1 className="text-sm font-bold text-gray-900 leading-tight">Mapa de Biblioteca</h1>
-              <p className="text-xs text-gray-400 leading-tight">Clasificación Dewey</p>
-            </div>
+              </div>
           </div>
         </div>
 
@@ -296,7 +291,11 @@ export default function App() {
             style={
               editMode
                 ? { backgroundColor: "#E9683B", color: "white", boxShadow: "0 4px 14px #E9683B44" }
-                : { backgroundColor: "#5454E914", color: "#5454E9" }
+                : {
+                    backgroundColor: "rgb(0, 0, 0)",
+                    color: "rgb(255, 255, 255)",
+                    boxShadow: "rgba(0, 0, 0, 0.2) 0px 4px 14px 0px",
+                  }
             }
           >
             {editMode ? (
@@ -311,7 +310,7 @@ export default function App() {
                 <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
                   <path
                     d="M9.5 2a1.5 1.5 0 0 1 2.121 2.121L5.121 10.62l-2.828.707.707-2.828L9.5 2Z"
-                    stroke="#5454E9" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"
+                    stroke="rgb(255, 255, 255)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"
                   />
                 </svg>
                 Editar mapa
