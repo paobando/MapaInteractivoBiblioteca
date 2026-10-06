@@ -26,7 +26,7 @@ export default function EditPanel({ shelf, onSave, onDelete, onClose }: Props) {
       ...shelf,
       label: label.trim() || shelf.label,
       deweyRanges: dewey.trim() ? [dewey.trim()] : shelf.deweyRanges,
-      description: description.trim() || shelf.description,
+      description: description.trim(),
       zone: zone.trim() || undefined,
       color,
       kind,

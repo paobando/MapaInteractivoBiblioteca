@@ -1,12 +1,12 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { shelves as initialShelves, type Shelf } from "./data/libraryData";
-import { projectId, publicAnonKey } from "../utils/supabase/info";
 import FloorMap from "./components/FloorMap";
 import Floor1Map from "./components/Floor1Map";
 import Floor2Map from "./components/Floor2Map";
 import Floor3Map from "./components/Floor3Map";
 import ShelfPanel from "./components/ShelfPanel";
 import EditPanel from "./components/EditPanel";
+import { fetchMapState, saveMapState, type MapState } from "./lib/mapStore";
 
 const FLOORS = [1, 2, 3] as const;
 
@@ -16,140 +16,136 @@ const floorMeta: Record<number, { full: string; zones: string }> = {
   3: { full: "Tercer piso",   zones: "Salas de estudio · Salas de video · Sala de escucha · SEI" },
 };
 
-const STORAGE_KEY = "library-map-elements";
-const MAP_API_URL = `https://${projectId}.supabase.co/functions/v1/make-server-509cd806/library-map`;
+const STORAGE_KEY = "mapa-biblioteca:v1";
+/* Clave que usaba la versión anterior de Make (solo guardaba en el navegador). */
+const LEGACY_STORAGE_KEY = "library-map-elements";
+const REFRESH_MS = 30_000;
 
-type StoredMap = {
-  shelves: Shelf[];
-  updatedAt: number;
+const defaultFloorNames: Record<number, string> = {
+  1: floorMeta[1].full,
+  2: floorMeta[2].full,
+  3: floorMeta[3].full,
+};
+const defaultFloorSubtitles: Record<number, string> = {
+  1: floorMeta[1].zones,
+  2: floorMeta[2].zones,
+  3: floorMeta[3].zones,
 };
 
-function loadSavedMap(): StoredMap {
+type SyncStatus = "loading" | "saving" | "saved" | "error";
+
+function normalize(state: Partial<MapState> | null | undefined): MapState {
+  return {
+    shelves: Array.isArray(state?.shelves) ? state.shelves : (initialShelves ?? []),
+    floorNames: { ...defaultFloorNames, ...state?.floorNames },
+    floorSubtitles: { ...defaultFloorSubtitles, ...state?.floorSubtitles },
+  };
+}
+
+/* Copia local para pintar rápido mientras llega la versión compartida. */
+function loadCached(): Partial<MapState> | null {
   try {
-    const saved = window.localStorage.getItem(STORAGE_KEY);
-    if (!saved) return { shelves: initialShelves, updatedAt: 0 };
-    const parsed = JSON.parse(saved);
-    if (Array.isArray(parsed)) {
-      return { shelves: parsed, updatedAt: 1 };
-    }
-    if (Array.isArray(parsed?.shelves) && typeof parsed.updatedAt === "number") {
-      return parsed;
-    }
-    return { shelves: initialShelves, updatedAt: 0 };
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) return JSON.parse(raw) as Partial<MapState>;
+    const legacy = JSON.parse(localStorage.getItem(LEGACY_STORAGE_KEY) ?? "null");
+    if (Array.isArray(legacy)) return { shelves: legacy };
+    if (Array.isArray(legacy?.shelves)) return { shelves: legacy.shelves };
+    return null;
   } catch {
-    return { shelves: initialShelves, updatedAt: 0 };
+    return null;
   }
 }
 
-function saveMapLocally(map: StoredMap) {
-  try {
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(map));
-  } catch {
-    // Keep the current session usable if browser storage is unavailable.
-  }
-}
-
-type RemoteMapResult = {
-  available: boolean;
-  map: StoredMap | null;
-};
-
-async function loadMapFromSupabase(): Promise<RemoteMapResult> {
-  const response = await fetch(MAP_API_URL, {
-    headers: { Authorization: `Bearer ${publicAnonKey}` },
-  });
-  if (response.status === 404) return { available: false, map: null };
-  if (!response.ok) throw new Error(`Error ${response.status} al cargar el mapa`);
-  const data = await response.json();
-  return { available: true, map: data.map ?? null };
-}
-
-async function saveMapToSupabase(map: StoredMap): Promise<boolean> {
-  const response = await fetch(MAP_API_URL, {
-    method: "PUT",
-    headers: {
-      Authorization: `Bearer ${publicAnonKey}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(map),
-  });
-  if (response.status === 404) return false;
-  if (!response.ok) throw new Error(`Error ${response.status} al guardar el mapa`);
-  return true;
-}
+const cached = normalize(loadCached());
 
 export default function App() {
-  const initialMapRef = useRef<StoredMap>(loadSavedMap());
-  const currentMapRef = useRef<StoredMap>(initialMapRef.current);
-  const lastUpdatedRef = useRef(initialMapRef.current.updatedAt);
-  const pendingSaveRef = useRef<number | null>(null);
-  const supabaseAvailableRef = useRef<boolean | null>(null);
-  const [shelves, setShelves] = useState<Shelf[]>(initialMapRef.current.shelves);
-  const [floorNames, setFloorNames] = useState<Record<number, string>>({
-    1: floorMeta[1].full,
-    2: floorMeta[2].full,
-    3: floorMeta[3].full,
-  });
-  const [floorSubtitles, setFloorSubtitles] = useState<Record<number, string>>({
-    1: floorMeta[1].zones,
-    2: floorMeta[2].zones,
-    3: floorMeta[3].zones,
-  });
+  const [shelves, setShelves] = useState<Shelf[]>(cached.shelves);
+  const [floorNames, setFloorNames] = useState<Record<number, string>>(cached.floorNames);
+  const [floorSubtitles, setFloorSubtitles] = useState<Record<number, string>>(cached.floorSubtitles);
+  const [syncStatus, setSyncStatus] = useState<SyncStatus>("loading");
+  /* true cuando ya se leyó la versión compartida y se puede escribir sobre ella */
+  const [ready, setReady] = useState(false);
+  const readyRef = useRef(false);
+  const [retryCount, setRetryCount] = useState(0);
+  const lastSyncedRef = useRef("");
+  const currentJsonRef = useRef("");
+  const saveChainRef = useRef<Promise<void>>(Promise.resolve());
+  const editModeRef = useRef(false);
+
+  const applyRemote = useCallback((remote: MapState) => {
+    const state = normalize(remote);
+    lastSyncedRef.current = JSON.stringify(state);
+    setShelves(state.shelves);
+    setFloorNames(state.floorNames);
+    setFloorSubtitles(state.floorSubtitles);
+  }, []);
+
+  /* Trae los cambios de otras personas, salvo que haya ediciones locales pendientes. */
+  const refresh = useCallback(async () => {
+    try {
+      const remote = await fetchMapState();
+      if (!readyRef.current) {
+        if (remote) applyRemote(remote);
+        readyRef.current = true;
+        setReady(true);
+      } else if (
+        remote &&
+        !editModeRef.current &&
+        currentJsonRef.current === lastSyncedRef.current &&
+        JSON.stringify(normalize(remote)) !== lastSyncedRef.current
+      ) {
+        applyRemote(remote);
+      }
+      if (currentJsonRef.current !== lastSyncedRef.current) {
+        /* quedó un guardado pendiente (p. ej. falló sin conexión): reintentar */
+        setRetryCount((count) => count + 1);
+      } else {
+        setSyncStatus("saved");
+      }
+    } catch {
+      setSyncStatus("error");
+    }
+  }, [applyRemote]);
+
+  useEffect(() => {
+    refresh();
+    const interval = window.setInterval(refresh, REFRESH_MS);
+    window.addEventListener("focus", refresh);
+    return () => {
+      window.clearInterval(interval);
+      window.removeEventListener("focus", refresh);
+    };
+  }, [refresh]);
+
+  /* Guarda en Supabase (con una pequeña espera para agrupar cambios seguidos). */
+  useEffect(() => {
+    const state: MapState = { shelves, floorNames, floorSubtitles };
+    const json = JSON.stringify(state);
+    currentJsonRef.current = json;
+    try {
+      localStorage.setItem(STORAGE_KEY, json);
+    } catch {
+      /* almacenamiento local no disponible */
+    }
+    if (!ready || json === lastSyncedRef.current) return;
+
+    setSyncStatus("saving");
+    const timeout = window.setTimeout(() => {
+      saveChainRef.current = saveChainRef.current
+        .then(() => saveMapState(state))
+        .then(() => {
+          lastSyncedRef.current = json;
+          if (currentJsonRef.current === json) setSyncStatus("saved");
+        })
+        .catch(() => setSyncStatus("error"));
+    }, 600);
+    return () => window.clearTimeout(timeout);
+  }, [ready, retryCount, shelves, floorNames, floorSubtitles]);
+
   const [activeFloor, setActiveFloor] = useState<number>(2);
   const [selectedShelf, setSelectedShelf] = useState<Shelf | null>(null);
   const [editMode, setEditMode] = useState(false);
-
-  const syncMap = (map: StoredMap) => {
-    if (supabaseAvailableRef.current === false) return;
-    if (pendingSaveRef.current !== null) window.clearTimeout(pendingSaveRef.current);
-    pendingSaveRef.current = window.setTimeout(() => {
-      saveMapToSupabase(map)
-        .then((available) => {
-          supabaseAvailableRef.current = available;
-        })
-        .catch(() => {
-          supabaseAvailableRef.current = false;
-        });
-    }, 250);
-  };
-
-  useEffect(() => {
-    let active = true;
-    loadMapFromSupabase()
-      .then(({ available, map: remoteMap }) => {
-        if (!active) return;
-        supabaseAvailableRef.current = available;
-        if (!available) return;
-        const localMap = currentMapRef.current;
-        if (remoteMap && remoteMap.updatedAt > localMap.updatedAt) {
-          lastUpdatedRef.current = remoteMap.updatedAt;
-          currentMapRef.current = remoteMap;
-          setShelves(remoteMap.shelves);
-          saveMapLocally(remoteMap);
-        } else {
-          syncMap(localMap);
-        }
-      })
-      .catch(() => {
-        supabaseAvailableRef.current = false;
-      });
-    return () => {
-      active = false;
-      if (pendingSaveRef.current !== null) window.clearTimeout(pendingSaveRef.current);
-    };
-  }, []);
-
-  const updateShelves = (updater: (current: Shelf[]) => Shelf[]) => {
-    setShelves((current) => {
-      const nextShelves = updater(current);
-      const map = { shelves: nextShelves, updatedAt: Date.now() };
-      lastUpdatedRef.current = map.updatedAt;
-      currentMapRef.current = map;
-      saveMapLocally(map);
-      syncMap(map);
-      return nextShelves;
-    });
-  };
+  editModeRef.current = editMode;
 
   /* ── handlers ── */
   const handleShelfClick = (shelf: Shelf) => {
@@ -157,7 +153,7 @@ export default function App() {
   };
 
   const handleShelfMove = (id: string, x: number, y: number) => {
-    updateShelves((current) => current.map((shelf) => (shelf.id === id ? { ...shelf, x, y } : shelf)));
+    setShelves((current) => current.map((shelf) => (shelf.id === id ? { ...shelf, x, y } : shelf)));
   };
 
   const handleMapClick = (x: number, y: number) => {
@@ -174,18 +170,18 @@ export default function App() {
       color: "#5454E9",
       kind: "shelf",
     };
-    updateShelves((current) => [...current, newShelf]);
+    setShelves((current) => [...current, newShelf]);
     setSelectedShelf(newShelf);
   };
 
   const handleSave = (updated: Shelf) => {
-    updateShelves((current) => current.map((shelf) => (shelf.id === updated.id ? updated : shelf)));
+    setShelves((current) => current.map((shelf) => (shelf.id === updated.id ? updated : shelf)));
     setSelectedShelf(updated);
   };
 
   const handleDelete = () => {
     if (!selectedShelf) return;
-    updateShelves((current) => current.filter((shelf) => shelf.id !== selectedShelf.id));
+    setShelves((current) => current.filter((shelf) => shelf.id !== selectedShelf.id));
     setSelectedShelf(null);
   };
 
@@ -256,7 +252,7 @@ export default function App() {
                   <div className="min-w-0">
                     <p className="text-sm font-bold leading-tight truncate"
                        style={{ color: active ? "white" : "#374151" }}>
-                      {floorMeta[f].full}
+                      {floorNames[f]}
                     </p>
                   </div>
                 </button>
@@ -272,6 +268,23 @@ export default function App() {
 
         {/* Edit mode toggle */}
         <div className="px-4 py-4">
+          <p
+            className="mb-2 flex items-center justify-center gap-1.5 text-xs font-semibold"
+            style={{ color: syncStatus === "error" ? "#E9683B" : "#9CA3AF" }}
+            aria-live="polite"
+          >
+            <span
+              className="size-1.5 rounded-full"
+              style={{
+                backgroundColor:
+                  syncStatus === "error" ? "#E9683B" : syncStatus === "saved" ? "#4CB979" : "#E4EB60",
+              }}
+            />
+            {syncStatus === "loading" && "Cargando cambios…"}
+            {syncStatus === "saving" && "Guardando…"}
+            {syncStatus === "saved" && "Cambios guardados"}
+            {syncStatus === "error" && "Sin conexión · no se guardó"}
+          </p>
           <button
             onClick={toggleEditMode}
             className="w-full flex items-center justify-center gap-2 py-2.5 text-sm font-bold transition-all duration-200"
@@ -425,6 +438,7 @@ export default function App() {
           >
             {editMode ? (
               <EditPanel
+                key={liveSelected.id}
                 shelf={liveSelected}
                 onSave={handleSave}
                 onDelete={handleDelete}
