@@ -35,7 +35,7 @@ const furniture: Box[] = [
   [200, 220, 8, 32], [98, 248, 8, 32], [106, 240, 32, 8], [200, 155, 8, 32],
   [208, 147, 32, 8], [500, 256, 8, 32], [508, 248, 32, 8], [587, 155, 8, 32],
   [595, 147, 32, 8], [545, 336, 8, 32], [513, 368, 32, 8], [650, 395, 8, 32],
-  [618, 427, 32, 8], [208, 252, 53, 8], [181, 286, 53, 8], [182, 398, 53, 8],
+  [618, 427, 32, 8], [208, 252, 53, 8], [182, 286, 53, 8], [182, 398, 53, 8],
   [174, 345, 8, 53], [587, 301, 8, 53], [595, 293, 53, 8], [495, 147, 53, 8],
   [466, 125, 8, 103], [278, 128, 8, 103], [678, 125, 8, 44], [678, 509, 8, 44],
   [678, 183, 8, 215], [525, 442, 53, 8], [497, 475, 53, 8], [597, 474, 53, 8],
@@ -60,8 +60,12 @@ const furniture: Box[] = [
   /* Sofás junto a las escaleras */
   [295, 178, 12, 20], [295, 199, 12, 20], [290, 178, 4, 41],
   [309, 168, 20, 12], [330, 168, 20, 12], [309, 163, 41, 4],
+  /* Columnas */
+  [169, 284, 12, 12], [236, 284, 12, 12], [169, 399, 12, 12], [236, 399, 12, 12],
+  [285, 274, 12, 12], [285, 398, 12, 12], [458, 276, 12, 12], [458, 398, 12, 12],
+  [399, 278, 12, 12], [400, 396, 12, 12],
   /* Puestos junto a las líneas de estudio */
-  ...[288, 302, 316, 330, 344, 358, 372, 386].flatMap((y): Box[] => [[281, y, 8, 8], [469, y, 8, 8]]),
+  ...[290, 304, 318, 332, 346, 360, 374, 388].flatMap((y): Box[] => [[281, y, 8, 8], [469, y, 8, 8]]),
   ...[304, 318, 332, 346, 360, 374, 388, 402, 416, 430, 444].flatMap((x): Box[] => [[x, 271, 8, 8], [x, 407, 8, 8]]),
   ...[331, 345, 359, 373, 387, 401, 415, 429, 443, 457, 471].map((y): Box => [75, y, 8, 8]),
 ];
@@ -93,7 +97,7 @@ function FloorPlan() {
     <div className="relative size-full bg-white" aria-label="Plano del tercer piso">
       <div className="floor-grid-pattern absolute left-[66px] top-[49px] h-[581px] w-[220px]" />
       <div className="floor-grid-pattern absolute left-[466px] top-[49px] h-[579px] w-[220px]" />
-      <div className="floor-grid-pattern absolute left-[287px] top-[147px] h-[140px] w-[179px]" />
+      <div className="floor-grid-pattern absolute left-[287px] top-[147px] h-[139px] w-[179px]" />
       <div className="floor-grid-pattern absolute left-[287px] top-[404px] h-[226px] w-[179px]" />
 
       <div className="absolute left-[193px] top-[313px] flex h-[58px] w-[60px] items-center justify-center bg-[#f6f6f6]">
@@ -175,10 +179,10 @@ function FloorPlan() {
       </div>
 
       {/* Puestos de estudio */}
-      <div className="absolute left-[290px] top-[287px] h-[108px] w-[8px] bg-icesi-blue" />
+      <div className="absolute left-[290px] top-[289px] h-[108px] w-[8px] bg-icesi-blue" />
       <div className="absolute left-[298px] top-[280px] h-[8px] w-[159px] bg-icesi-blue" />
-      <div className="absolute left-[297px] top-[398px] h-[8px] w-[159px] bg-icesi-blue" />
-      <div className="absolute left-[460px] top-[287px] h-[108px] w-[8px] bg-icesi-blue" />
+      <div className="absolute left-[298px] top-[398px] h-[8px] w-[159px] bg-icesi-blue" />
+      <div className="absolute left-[460px] top-[289px] h-[108px] w-[8px] bg-icesi-blue" />
       <div className="absolute left-[66px] top-[328px] h-[155px] w-[8px] bg-icesi-blue" />
 
       {/* Mobiliario */}

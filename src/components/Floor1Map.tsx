@@ -24,9 +24,9 @@ function FloorPlan() {
       <div className="absolute left-[309px] top-[219px] h-[243px] w-[301px] bg-[#f6f6f6]" />
       <div className="absolute left-[309px] top-[197px] h-[294px] w-[113px] bg-[#f6f6f6]" />
       <span className="map-label left-[408px] top-[335px]">Hall de biblioteca</span>
-      {[422, 481, 541].map((x) =>
+      {[422, 482, 543].map((x) =>
         [278, 398].map((y) => (
-          <div key={`${x}-${y}`} className="absolute size-[15px] bg-[#d9d9d9]" style={{ left: x, top: y }} />
+          <div key={`${x}-${y}`} className="absolute size-[12px] bg-[#d9d9d9]" style={{ left: x, top: y }} />
         )),
       )}
 
