@@ -47,6 +47,28 @@ function detectDeweyCategory(text: string): DeweyCategory | null {
   return deweyCategories.find((cat) => cat.id === baseHundred) ?? null;
 }
 
+/* Reduce la foto a un tamaño razonable para el mapa (máx. 1280 px, JPEG).
+   Una foto de cámara pesa varios MB; guardada tal cual hace que Supabase
+   rechace el guardado del mapa por tiempo de espera. */
+const MAX_IMAGE_SIDE = 1280;
+
+async function compressImage(file: File): Promise<Blob> {
+  if (file.type === "image/gif") return file;
+  const bitmap = await createImageBitmap(file);
+  const scale = Math.min(1, MAX_IMAGE_SIDE / Math.max(bitmap.width, bitmap.height));
+  const canvas = document.createElement("canvas");
+  canvas.width = Math.round(bitmap.width * scale);
+  canvas.height = Math.round(bitmap.height * scale);
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return file;
+  ctx.fillStyle = "#FFFFFF";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+  bitmap.close();
+  const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, "image/jpeg", 0.8));
+  return blob && blob.size < file.size ? blob : file;
+}
+
 export default function EditPanel({ shelf, onSave, onDelete, onClose }: Props) {
   // ── Estado del formulario ──
   const [kind, setKind] = useState<"shelf" | "area">(shelf.kind ?? "shelf");
@@ -127,9 +149,18 @@ export default function EditPanel({ shelf, onSave, onDelete, onClose }: Props) {
     setUploadError("");
     setImageLoadError(false);
 
+    let image: Blob = file;
+    try {
+      image = await compressImage(file);
+    } catch {
+      /* si el navegador no puede procesarla, se usa el archivo original */
+    }
+
     try {
       const bucketName = "images";
-      const cleanFileName = `${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.]/g, "_")}`;
+      const extension = image.type === "image/jpeg" ? "jpg" : (file.name.split(".").pop() ?? "img");
+      const baseName = file.name.replace(/\.[^.]+$/, "").replace(/[^a-zA-Z0-9]/g, "_");
+      const cleanFileName = `${Date.now()}-${baseName}.${extension}`;
       const uploadUrl = `https://${projectId}.supabase.co/storage/v1/object/${bucketName}/${cleanFileName}`;
 
       const response = await fetch(uploadUrl, {
@@ -137,9 +168,9 @@ export default function EditPanel({ shelf, onSave, onDelete, onClose }: Props) {
         headers: {
           apikey: publicAnonKey,
           Authorization: `Bearer ${publicAnonKey}`,
-          "Content-Type": file.type,
+          "Content-Type": image.type,
         },
-        body: file,
+        body: image,
       });
 
       if (response.ok) {
@@ -168,7 +199,7 @@ export default function EditPanel({ shelf, onSave, onDelete, onClose }: Props) {
         setUploadError("Error al leer el archivo del dispositivo.");
         setUploading(false);
       };
-      reader.readAsDataURL(file);
+      reader.readAsDataURL(image);
     } catch {
       setUploadError("Error en la lectura del archivo.");
       setUploading(false);
