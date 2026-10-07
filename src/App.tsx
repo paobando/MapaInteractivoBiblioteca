@@ -312,9 +312,61 @@ export default function App() {
               </span>
             </div>
             <div className="flex items-center gap-2.5">
-              <div className="w-3 h-3 bg-[#d9d9d9] border border-gray-300 shrink-0" />
+              <div className="w-7 flex justify-center shrink-0">
+                <div className="w-3 h-3 bg-[#d9d9d9] border border-gray-300" />
+              </div>
               <span className="text-xs font-semibold text-gray-700">
                 Columnas (cuadrados grises)
+              </span>
+            </div>
+            <div className="flex items-center gap-2.5">
+              <div className="w-7 h-2 bg-black shrink-0" />
+              <span className="text-xs font-semibold text-gray-700">
+                Estanterías de exposición (líneas negras)
+              </span>
+            </div>
+            <div className="flex items-center gap-2.5">
+              {/* Mesa con tres sillas por lado, como en el plano */}
+              <div className="w-7 flex flex-col items-center gap-px shrink-0" aria-hidden="true">
+                <div className="flex gap-0.5">
+                  {[0, 1, 2].map((i) => <span key={i} className="size-[3px] bg-[#d9d9d9]" />)}
+                </div>
+                <span className="w-3.5 h-2 bg-[#d9d9d9]" />
+                <div className="flex gap-0.5">
+                  {[0, 1, 2].map((i) => <span key={i} className="size-[3px] bg-[#d9d9d9]" />)}
+                </div>
+              </div>
+              <span className="text-xs font-semibold text-gray-700">
+                Mesas rectangulares con sillas
+              </span>
+            </div>
+            <div className="flex items-center gap-2.5">
+              {/* Mesa redonda con sillas alrededor */}
+              <div className="w-7 flex justify-center shrink-0" aria-hidden="true">
+                <div className="relative size-4">
+                  <span className="absolute left-[4px] top-[5px] size-2 rounded-full bg-[#d9d9d9]" />
+                  <span className="absolute left-[6px] top-0 size-1 rounded-full bg-[#d9d9d9]" />
+                  <span className="absolute left-0 top-[11px] size-1 rounded-full bg-[#d9d9d9]" />
+                  <span className="absolute right-0 top-[11px] size-1 rounded-full bg-[#d9d9d9]" />
+                </div>
+              </div>
+              <span className="text-xs font-semibold text-gray-700">
+                Mesas redondas
+              </span>
+            </div>
+            <div className="flex items-center gap-2.5">
+              {/* Sofá: respaldo y dos cojines */}
+              <div className="w-7 flex justify-center shrink-0" aria-hidden="true">
+                <div className="flex flex-col gap-px">
+                  <span className="w-4 h-[2px] bg-[#d9d9d9]" />
+                  <div className="flex gap-px">
+                    <span className="w-2 h-1.5 bg-[#d9d9d9]" />
+                    <span className="w-2 h-1.5 bg-[#d9d9d9]" />
+                  </div>
+                </div>
+              </div>
+              <span className="text-xs font-semibold text-gray-700">
+                Sofás
               </span>
             </div>
             <div className="flex items-center gap-2.5">
