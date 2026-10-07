@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { deweyCategories, type Shelf, type DeweyCategory } from "../data/libraryData";
-import { projectId, publicAnonKey } from "../../utils/supabase/info";
+import { uploadImage } from "../lib/imageStore";
 
 type Props = {
   shelf: Shelf;
@@ -45,28 +45,6 @@ function detectDeweyCategory(text: string): DeweyCategory | null {
   if (isNaN(num) || num < 0 || num > 999) return null;
   const baseHundred = String(Math.floor(num / 100) * 100).padStart(3, "0");
   return deweyCategories.find((cat) => cat.id === baseHundred) ?? null;
-}
-
-/* Reduce la foto a un tamaño razonable para el mapa (máx. 1280 px, JPEG).
-   Una foto de cámara pesa varios MB; guardada tal cual hace que Supabase
-   rechace el guardado del mapa por tiempo de espera. */
-const MAX_IMAGE_SIDE = 1280;
-
-async function compressImage(file: File): Promise<Blob> {
-  if (file.type === "image/gif") return file;
-  const bitmap = await createImageBitmap(file);
-  const scale = Math.min(1, MAX_IMAGE_SIDE / Math.max(bitmap.width, bitmap.height));
-  const canvas = document.createElement("canvas");
-  canvas.width = Math.round(bitmap.width * scale);
-  canvas.height = Math.round(bitmap.height * scale);
-  const ctx = canvas.getContext("2d");
-  if (!ctx) return file;
-  ctx.fillStyle = "#FFFFFF";
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-  ctx.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
-  bitmap.close();
-  const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, "image/jpeg", 0.8));
-  return blob && blob.size < file.size ? blob : file;
 }
 
 export default function EditPanel({ shelf, onSave, onDelete, onClose }: Props) {
@@ -131,7 +109,7 @@ export default function EditPanel({ shelf, onSave, onDelete, onClose }: Props) {
     description !== initialDescription ||
     imageUrl !== initialImageUrl;
 
-  // ── Procesamiento de subida de archivo (Supabase Storage + fallback Base64) ──
+  // ── Procesamiento de subida de archivo (Supabase Storage) ──
   const processUploadFile = async (file: File) => {
     if (!file) return;
 
@@ -140,8 +118,8 @@ export default function EditPanel({ shelf, onSave, onDelete, onClose }: Props) {
       return;
     }
 
-    if (file.size > 1.5 * 1024 * 1024) {
-      setUploadError("La foto es muy pesada (máx. 1.5MB para evitar fallos de guardado). Por favor usa una imagen más pequeña.");
+    if (file.size > 10 * 1024 * 1024) {
+      setUploadError("La foto es muy pesada (máx. 10MB). Por favor usa una imagen más pequeña.");
       return;
     }
 
@@ -149,59 +127,11 @@ export default function EditPanel({ shelf, onSave, onDelete, onClose }: Props) {
     setUploadError("");
     setImageLoadError(false);
 
-    let image: Blob = file;
     try {
-      image = await compressImage(file);
+      setImageUrl(await uploadImage(file, file.name));
     } catch {
-      /* si el navegador no puede procesarla, se usa el archivo original */
-    }
-
-    try {
-      const bucketName = "images";
-      const extension = image.type === "image/jpeg" ? "jpg" : (file.name.split(".").pop() ?? "img");
-      const baseName = file.name.replace(/\.[^.]+$/, "").replace(/[^a-zA-Z0-9]/g, "_");
-      const cleanFileName = `${Date.now()}-${baseName}.${extension}`;
-      const uploadUrl = `https://${projectId}.supabase.co/storage/v1/object/${bucketName}/${cleanFileName}`;
-
-      const response = await fetch(uploadUrl, {
-        method: "POST",
-        headers: {
-          apikey: publicAnonKey,
-          Authorization: `Bearer ${publicAnonKey}`,
-          "Content-Type": image.type,
-        },
-        body: image,
-      });
-
-      if (response.ok) {
-        const publicUrl = `https://${projectId}.supabase.co/storage/v1/object/public/${bucketName}/${cleanFileName}`;
-        setImageUrl(publicUrl);
-        setUploading(false);
-        return;
-      }
-    } catch {
-      // Intento de fallback
-    }
-
-    // Fallback a Base64
-    try {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        if (typeof reader.result === "string") {
-          setImageUrl(reader.result);
-          setUploading(false);
-        } else {
-          setUploadError("Error al codificar la imagen.");
-          setUploading(false);
-        }
-      };
-      reader.onerror = () => {
-        setUploadError("Error al leer el archivo del dispositivo.");
-        setUploading(false);
-      };
-      reader.readAsDataURL(image);
-    } catch {
-      setUploadError("Error en la lectura del archivo.");
+      setUploadError("No se pudo subir la foto. Revisa tu conexión e inténtalo de nuevo.");
+    } finally {
       setUploading(false);
     }
   };
@@ -649,7 +579,7 @@ export default function EditPanel({ shelf, onSave, onDelete, onClose }: Props) {
                 foto de la ubicación
               </label>
               <span className="text-[11px] text-gray-400 font-semibold">
-                máx. 1.5MB
+                máx. 10MB
               </span>
             </div>
 
@@ -743,7 +673,7 @@ export default function EditPanel({ shelf, onSave, onDelete, onClose }: Props) {
                       Arrastra una foto aquí o haz clic para examinar
                     </p>
                     <p className="text-[11px] text-gray-400 mt-0.5">
-                      Soporta JPG, PNG, WebP o GIF (máx. 1.5MB)
+                      Soporta JPG, PNG, WebP o GIF (máx. 10MB)
                     </p>
                   </>
                 )}

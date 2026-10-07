@@ -7,6 +7,7 @@ import Floor3Map from "./components/Floor3Map";
 import ShelfPanel from "./components/ShelfPanel";
 import EditPanel from "./components/EditPanel";
 import { fetchMapState, saveMapState, type MapState } from "./lib/mapStore";
+import { uploadDataUrl } from "./lib/imageStore";
 
 const FLOORS = [1, 2, 3] as const;
 
@@ -144,6 +145,25 @@ export default function App() {
     }, 600);
     return () => window.clearTimeout(timeout);
   }, [ready, retryCount, shelves, floorNames, floorSubtitles]);
+
+  /* Fotos antiguas guardadas como texto (data:...): se suben a Storage y se
+     reemplazan por su enlace, para que el mapa vuelva a pesar poco. */
+  const migratingRef = useRef(new Set<string>());
+  useEffect(() => {
+    if (!ready) return;
+    for (const shelf of shelves) {
+      const dataUrl = shelf.imageUrl;
+      if (!dataUrl?.startsWith("data:") || migratingRef.current.has(dataUrl)) continue;
+      migratingRef.current.add(dataUrl);
+      uploadDataUrl(dataUrl, shelf.label)
+        .then((url) =>
+          setShelves((current) =>
+            current.map((s) => (s.imageUrl === dataUrl ? { ...s, imageUrl: url } : s)),
+          ),
+        )
+        .catch(() => migratingRef.current.delete(dataUrl));
+    }
+  }, [ready, shelves]);
 
   const [activeFloor, setActiveFloor] = useState<number>(1);
   const [selectedShelf, setSelectedShelf] = useState<Shelf | null>(null);
