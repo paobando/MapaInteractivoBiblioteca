@@ -310,7 +310,7 @@ export default function EditPanel({ shelf, onSave, onDelete, onClose }: Props) {
               )}
             </div>
             <p className="text-[11px] text-gray-500 font-semibold truncate">
-              Piso {shelf.floor} · {kind === "shelf" ? (zone.trim() || (shelf.floor === 3 ? "Sala de lectura" : "Colección general")) : (zone.trim() || label.trim() || "Área")}{kind === "shelf" && label.trim() && ` · ${label.trim()}`}
+              Piso {shelf.floor} · {zone.trim() || (shelf.floor === 3 ? "Sala de lectura" : "Colección general")}{label.trim() && ` · ${label.trim()}`}
             </p>
           </div>
         </div>
@@ -335,14 +335,14 @@ export default function EditPanel({ shelf, onSave, onDelete, onClose }: Props) {
         <section className="space-y-3">
           <div className="flex items-center justify-between border-b border-gray-200 pb-1.5">
             <h4 className="text-[11px] font-bold text-gray-950">
-              1. identificación
+              1. Identificación
             </h4>
           </div>
 
           {/* Control segmentado: Estantería / Área */}
           <div>
-            <label className="block text-[11px] font-bold text-gray-500 mb-1.5">
-              tipo de elemento
+            <label className="block text-[11px] font-normal text-gray-500 mb-1.5">
+              Tipo de elemento
             </label>
             <div className="grid grid-cols-2 gap-1 p-1 bg-gray-100 border border-gray-300">
               <button
@@ -375,8 +375,8 @@ export default function EditPanel({ shelf, onSave, onDelete, onClose }: Props) {
           {/* Etiqueta / Nombre con contador y validación */}
           <div>
             <div className="flex items-center justify-between mb-1.5">
-              <label htmlFor="input-label" className="text-[11px] font-bold text-gray-500">
-                {kind === "shelf" ? "etiqueta del estante" : "nombre del área"}
+              <label htmlFor="input-label" className="text-[11px] font-normal text-gray-500">
+                {kind === "shelf" ? "Etiqueta del estante" : "Nombre del área"}
               </label>
               <span
                 className={`text-[11px] font-bold ${
@@ -406,8 +406,8 @@ export default function EditPanel({ shelf, onSave, onDelete, onClose }: Props) {
 
           {/* Área o zona */}
           <div>
-            <label htmlFor="input-zone" className="block text-[11px] font-bold text-gray-500 mb-1.5">
-              zona o sala
+            <label htmlFor="input-zone" className="block text-[11px] font-normal text-gray-500 mb-1.5">
+              Zona o sala
             </label>
             <input
               id="input-zone"
@@ -425,14 +425,14 @@ export default function EditPanel({ shelf, onSave, onDelete, onClose }: Props) {
         <section className="space-y-3">
           <div className="flex items-center justify-between border-b border-gray-200 pb-1.5">
             <h4 className="text-[11px] font-bold text-gray-950">
-              2. color del pin
+              2. Color del pin
             </h4>
           </div>
 
           {/* Muestras de marca Icesi */}
           <div>
-            <label className="block text-[11px] font-bold text-gray-500 mb-1.5">
-              colores institucionales
+            <label className="block text-[11px] font-normal text-gray-500 mb-1.5">
+              Colores institucionales
             </label>
             <div className="grid grid-cols-6 gap-1.5">
               {ICESI_COLORS.map((c) => {
@@ -468,8 +468,8 @@ export default function EditPanel({ shelf, onSave, onDelete, onClose }: Props) {
 
           {/* Color personalizado + Campo HEX validado */}
           <div>
-            <label htmlFor="input-hex" className="block text-[11px] font-bold text-gray-500 mb-1.5">
-              personalizado / código hex
+            <label htmlFor="input-hex" className="block text-[11px] font-normal text-gray-500 mb-1.5">
+              Personalizado / código hex
             </label>
             <div className="flex items-center gap-2">
               <input
@@ -514,6 +514,7 @@ export default function EditPanel({ shelf, onSave, onDelete, onClose }: Props) {
                   backgroundColor: color,
                   color: previewTextColor,
                   borderRadius: 0,
+                  borderStyle: "none",
                 }}
               >
                 Muestra
@@ -529,7 +530,7 @@ export default function EditPanel({ shelf, onSave, onDelete, onClose }: Props) {
         <section className="space-y-3">
           <div className="flex items-center justify-between border-b border-gray-200 pb-1.5">
             <h4 className="text-[11px] font-bold text-gray-950">
-              3. contenido y multimedia
+              3. Contenido y multimedia
             </h4>
           </div>
 
@@ -537,8 +538,8 @@ export default function EditPanel({ shelf, onSave, onDelete, onClose }: Props) {
           {kind === "shelf" && (
             <div>
               <div className="flex items-center justify-between mb-1.5">
-                <label htmlFor="input-dewey" className="text-[11px] font-bold text-gray-500">
-                  signatura dewey
+                <label htmlFor="input-dewey" className="text-[11px] font-normal text-gray-500">
+                  Signatura dewey
                 </label>
                 <span className="text-[11px] text-gray-400 font-semibold">
                   ej. 800–899.9
@@ -558,8 +559,8 @@ export default function EditPanel({ shelf, onSave, onDelete, onClose }: Props) {
 
           {/* Descripción */}
           <div>
-            <label htmlFor="input-desc" className="block text-[11px] font-bold text-gray-500 mb-1.5">
-              descripción / temas
+            <label htmlFor="input-desc" className="block text-[11px] font-normal text-gray-500 mb-1.5">
+              Descripción / temas
             </label>
             <textarea
               id="input-desc"
@@ -575,8 +576,8 @@ export default function EditPanel({ shelf, onSave, onDelete, onClose }: Props) {
           {/* Foto: Arrastrar y soltar + Reemplazar / Quitar + Detección de error */}
           <div>
             <div className="flex items-center justify-between mb-1.5">
-              <label className="text-[11px] font-bold text-gray-500">
-                foto de la ubicación
+              <label className="text-[11px] font-normal text-gray-500">
+                Foto de la ubicación
               </label>
               <span className="text-[11px] text-gray-400 font-semibold">
                 máx. 10MB
@@ -637,7 +638,7 @@ export default function EditPanel({ shelf, onSave, onDelete, onClose }: Props) {
                     }}
                     disabled={uploading}
                     className="py-1.5 px-3 bg-red-100 hover:bg-red-200 text-red-800 text-[11px] font-bold border border-red-300 transition-colors"
-                    style={{ borderRadius: 0 }}
+                    style={{ borderRadius: 0, borderStyle: "none", color: "#E9683B" }}
                   >
                     Quitar
                   </button>
@@ -690,24 +691,24 @@ export default function EditPanel({ shelf, onSave, onDelete, onClose }: Props) {
       {/* ── ACCIONES FIJAS ABAJO (FOOTER) ── */}
       <div className="shrink-0 p-3 bg-white border-t border-gray-950">
         {confirmDelete ? (
-          <div className="space-y-2 bg-red-50 p-2.5 border border-red-300">
-            <p className="text-[11px] font-bold text-red-900 leading-tight">
+          <div className="space-y-2 bg-red-50 p-2.5 border" style={{ borderColor: "#e60e11", borderRadius: 0 }}>
+            <p className="text-[11px] font-bold leading-tight" style={{ color: "#FF6735" }}>
               ¿Eliminar este {kind === "shelf" ? "estante" : "área"} permanentemente del mapa?
             </p>
             <div className="flex gap-2">
               <button
                 type="button"
                 onClick={onDelete}
-                className="flex-1 py-2 bg-red-600 hover:bg-red-700 text-white font-bold text-[12px] transition-colors"
-                style={{ borderRadius: 0 }}
+                className="flex-1 py-2 text-white font-bold text-[12px] transition-colors"
+                style={{ backgroundColor: "#E9683B", borderRadius: 0 }}
               >
                 Sí, eliminar
               </button>
               <button
                 type="button"
                 onClick={() => setConfirmDelete(false)}
-                className="flex-1 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold text-[12px] transition-colors"
-                style={{ borderRadius: 0 }}
+                className="flex-1 py-2 text-gray-800 font-bold text-[12px] transition-colors border border-gray-200"
+                style={{ backgroundColor: "#F6F6F6", borderRadius: 0 }}
               >
                 Cancelar
               </button>

@@ -410,7 +410,7 @@ export default function App() {
               editMode
                 ? { backgroundColor: "#E9683B", color: "white", boxShadow: "0 4px 14px #E9683B44" }
                 : {
-                    backgroundColor: "rgb(0, 0, 0)",
+                    backgroundColor: "#000000",
                     color: "rgb(255, 255, 255)",
                     boxShadow: "rgba(0, 0, 0, 0.2) 0px 4px 14px 0px",
                   }
@@ -481,8 +481,8 @@ export default function App() {
           </div>
           {editMode && (
             <div
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold"
-              style={{ backgroundColor: "#E9683B18", color: "#E9683B", border: "1px solid #E9683B33" }}
+              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold"
+              style={{ backgroundColor: "#E9683B18", color: "#E9683B", border: "none", borderRadius: 0 }}
             >
               <span className="w-1.5 h-1.5 rounded-full bg-orange-400 animate-pulse" />
               Modo edición activo

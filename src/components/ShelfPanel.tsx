@@ -33,12 +33,10 @@ export default function ShelfPanel({ shelf, onClose }: Props) {
 
   const isShelf = shelf.kind !== "area";
 
-  // Determinar la zona o área real para el título de la ficha (toma la zona o área física configurada)
+  // Determinar la zona o área real para el título de la ficha (toma la zona o área física configurada o la por defecto)
   const displayTitle =
     shelf.zone?.trim() ||
-    (isShelf
-      ? (shelf.floor === 3 ? "Sala de lectura" : "Colección general")
-      : shelf.label?.trim() || "Área");
+    (shelf.floor === 3 ? "Sala de lectura" : "Colección general");
 
   return (
     <div
