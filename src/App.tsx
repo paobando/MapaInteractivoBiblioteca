@@ -13,8 +13,8 @@ const FLOORS = [1, 2, 3] as const;
 
 const floorMeta: Record<number, { full: string; zones: string }> = {
   1: { full: "Primer piso",   zones: "Hall de biblioteca · Sala Oasis · Oficinas · Salas de estudio" },
-  2: { full: "Segundo piso",  zones: "Literatura · Sala general · United Way · Salas de estudio · Zona de préstamo" },
-  3: { full: "Tercer piso",   zones: "Salas de estudio · Salas de video · Sala de escucha · SEI" },
+  2: { full: "Segundo piso",  zones: "Literatura · Sala de cómputo · Laboratorio United Way · Salas de estudio · Punto de atención" },
+  3: { full: "Tercer piso",   zones: "Salas de estudio · Salas de video · Sala de escucha música · Punto de atención SEI" },
 };
 
 const STORAGE_KEY = "mapa-biblioteca:v1";
