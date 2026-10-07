@@ -75,7 +75,7 @@ export default function EditPanel({ shelf, onSave, onDelete, onClose }: Props) {
   const detectedDeweyCategory = kind === "shelf" ? detectDeweyCategory(dewey) : null;
 
   // ── Validaciones ──
-  const maxLabelLen = kind === "shelf" ? 4 : 40;
+  const maxLabelLen = kind === "shelf" ? 30 : 40;
   const isLabelEmpty = label.trim().length === 0;
   const isLabelTooLong = label.trim().length > maxLabelLen;
 
@@ -84,7 +84,7 @@ export default function EditPanel({ shelf, onSave, onDelete, onClose }: Props) {
     labelError = "La etiqueta no puede estar vacía.";
   } else if (isLabelTooLong) {
     labelError = kind === "shelf"
-      ? "Máximo 4 caracteres para estanterías (ej. T1, T2B)."
+      ? "Máximo 30 caracteres para estanterías (ej. zona A, oficina A)."
       : "Máximo 40 caracteres para áreas de servicio.";
   }
 
@@ -271,14 +271,14 @@ export default function EditPanel({ shelf, onSave, onDelete, onClose }: Props) {
             {kind === "shelf" ? (
               <>
                 <div
-                  className="size-7 flex items-center justify-center text-[11px] font-black border border-gray-950 shadow-sm"
+                  className="h-7 min-w-[28px] px-1.5 flex items-center justify-center text-[8.5px] font-black border border-gray-950 shadow-sm"
                   style={{
                     backgroundColor: color,
                     color: previewTextColor,
                     borderRadius: 0,
                   }}
                 >
-                  {label.slice(0, 3) || "T?"}
+                  {label || "T?"}
                 </div>
                 <div
                   className="size-0 border-x-[4px] border-t-[5px] border-x-transparent -mt-[1px]"
@@ -310,7 +310,7 @@ export default function EditPanel({ shelf, onSave, onDelete, onClose }: Props) {
               )}
             </div>
             <p className="text-[11px] text-gray-500 font-semibold truncate">
-              Piso {shelf.floor} · {kind === "shelf" ? (zone.trim() || (shelf.floor === 3 ? "Sala de lectura" : "Colección general")) : (label.trim() || "Área")}{kind === "shelf" && label.trim() && ` · ${label.trim()}`}
+              Piso {shelf.floor} · {kind === "shelf" ? (zone.trim() || (shelf.floor === 3 ? "Sala de lectura" : "Colección general")) : (zone.trim() || label.trim() || "Área")}{kind === "shelf" && label.trim() && ` · ${label.trim()}`}
             </p>
           </div>
         </div>
@@ -335,7 +335,7 @@ export default function EditPanel({ shelf, onSave, onDelete, onClose }: Props) {
         <section className="space-y-3">
           <div className="flex items-center justify-between border-b border-gray-200 pb-1.5">
             <h4 className="text-[11px] font-bold text-gray-950">
-              1. Identificación
+              1. identificación
             </h4>
           </div>
 
@@ -425,7 +425,7 @@ export default function EditPanel({ shelf, onSave, onDelete, onClose }: Props) {
         <section className="space-y-3">
           <div className="flex items-center justify-between border-b border-gray-200 pb-1.5">
             <h4 className="text-[11px] font-bold text-gray-950">
-              2. Color del pin
+              2. color del pin
             </h4>
           </div>
 
@@ -529,7 +529,7 @@ export default function EditPanel({ shelf, onSave, onDelete, onClose }: Props) {
         <section className="space-y-3">
           <div className="flex items-center justify-between border-b border-gray-200 pb-1.5">
             <h4 className="text-[11px] font-bold text-gray-950">
-              3. Contenido y multimedia
+              3. contenido y multimedia
             </h4>
           </div>
 

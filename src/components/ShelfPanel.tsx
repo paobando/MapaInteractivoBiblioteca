@@ -135,9 +135,9 @@ export default function ShelfPanel({ shelf, onClose }: Props) {
             </>
           ) : (
             <>
-              {/* Kicker: Área · Piso 2 · Zona */}
+              {/* Kicker: Área · Piso 2 */}
               <p className="text-[11px] font-bold text-gray-500">
-                Área · Piso {shelf.floor}{shelf.zone?.trim() && ` · ${shelf.zone.trim()}`}
+                Área{shelf.label && shelf.label !== displayTitle && ` ${shelf.label}`} · Piso {shelf.floor}
               </p>
 
               {/* Título: Nombre del área */}
@@ -145,7 +145,7 @@ export default function ShelfPanel({ shelf, onClose }: Props) {
                 id="shelf-panel-title"
                 className="text-xl font-black text-gray-950 mt-0.5 leading-tight tracking-tight"
               >
-                {shelf.label?.trim() || "Área"}
+                {displayTitle}
               </h3>
             </>
           )}

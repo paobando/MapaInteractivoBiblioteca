@@ -235,7 +235,7 @@ export default function MapPin({
           >
             {/* Cuerpo cuadrado del pin: siempre muestra la etiqueta (T1), nunca lápiz */}
             <div
-              className={`flex size-7 items-center justify-center border border-white text-[8.5px] font-black tracking-tight ${
+              className={`flex h-7 min-w-[28px] px-1.5 items-center justify-center border border-white text-[8.5px] font-black tracking-tight ${
                 selected
                   ? "ring-2 ring-gray-950 ring-offset-1"
                   : "focus-visible:ring-2 focus-visible:ring-gray-950"
