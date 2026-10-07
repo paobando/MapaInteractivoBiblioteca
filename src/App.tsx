@@ -60,6 +60,9 @@ const cached = normalize(loadCached());
 
 export default function App() {
   const [shelves, setShelves] = useState<Shelf[]>(cached.shelves);
+  const hasHeavyImage = shelves.some(
+    (s) => s.imageUrl && s.imageUrl.startsWith("data:image/") && s.imageUrl.length > 1 * 1024 * 1024
+  );
   const [floorNames, setFloorNames] = useState<Record<number, string>>(cached.floorNames);
   const [floorSubtitles, setFloorSubtitles] = useState<Record<number, string>>(cached.floorSubtitles);
   const [syncStatus, setSyncStatus] = useState<SyncStatus>("loading");
@@ -320,7 +323,7 @@ export default function App() {
             {syncStatus === "loading" && "Cargando cambios…"}
             {syncStatus === "saving" && "Guardando…"}
             {syncStatus === "saved" && "Cambios guardados"}
-            {syncStatus === "error" && "Sin conexión · no se guardó"}
+            {syncStatus === "error" && (hasHeavyImage ? "Foto muy pesada · no se guardó" : "Sin conexión · no se guardó")}
           </p>
           <button
             onClick={toggleEditMode}
