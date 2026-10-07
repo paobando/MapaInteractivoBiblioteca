@@ -114,11 +114,33 @@ function FloorPlan() {
       <div className="absolute left-[520px] top-[455px] h-[32px] w-[8px] bg-[#c4c4c4]" />
       <div className="absolute left-[528px] top-[447px] h-[8px] w-[32px] bg-[#c4c4c4]" />
       <div className="absolute left-[520px] top-[532px] h-[8px] w-[32px] bg-[#c4c4c4]" />
-      <div className="absolute left-[588px] top-[447px] h-[8px] w-[32px] bg-[#c4c4c4]" />
       <div className="absolute left-[579px] top-[395px] h-[8px] w-[103px] bg-[#c4c4c4]" />
       <div className="absolute left-[594px] top-[522px] h-[8px] w-[53px] bg-[#c4c4c4]" />
       <div className="absolute left-[647px] top-[469px] h-[53px] w-[8px] bg-[#c4c4c4]" />
       <div className="absolute left-[674px] top-[517px] h-[31px] w-[8px] bg-[#c4c4c4]" />
+
+      {/* Mesas con sillas (tres por lado) */}
+      {[
+        [556, 471],
+        [619, 416],
+      ].map(([x, y]) => (
+        <div key={`mesa-${x}`} className="absolute h-[39px] w-[44px]" style={{ left: x, top: y }}>
+          <div className="absolute left-[10px] top-0 h-[39px] w-[24px] bg-[#d9d9d9]" />
+          {[0, 35].map((chairX) =>
+            [
+              [0, 8],
+              [16, 7],
+              [31, 8],
+            ].map(([chairY, h]) => (
+              <div
+                key={`${chairX}-${chairY}`}
+                className="absolute w-[9px] bg-[#d9d9d9]"
+                style={{ left: chairX, top: chairY, height: h }}
+              />
+            )),
+          )}
+        </div>
+      ))}
     </div>
   );
 }
