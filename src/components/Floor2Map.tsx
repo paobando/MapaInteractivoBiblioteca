@@ -18,58 +18,107 @@ type Props = {
   selectedShelf: Shelf | null;
 };
 
+type Box = [left: number, top: number, width: number, height: number];
+
+/* Estanterías, mesas, sillas y mobiliario (gris claro) */
+const furniture: Box[] = [
+  [174, 54, 119, 8], [174, 104, 8, 129], [285, 86, 8, 54], [273, 167, 8, 66],
+  [213, 97, 8, 32], [221, 89, 32, 8], [242, 165, 8, 32], [210, 197, 32, 8],
+  [459, 127, 8, 100], [515, 127, 8, 100],
+  [469, 447, 8, 33], [469, 504, 32, 8], [520, 455, 8, 32], [528, 447, 32, 8], [514, 532, 32, 8],
+  [579, 395, 103, 8], [594, 522, 53, 8], [647, 469, 8, 53], [674, 517, 8, 31],
+  /* Sofás junto a las escaleras */
+  [301, 174, 12, 20], [301, 195, 12, 20], [296, 174, 4, 41],
+  [315, 164, 20, 12], [336, 164, 20, 12], [315, 159, 41, 4],
+  /* Mesas con sillas */
+  [547, 466, 24, 40], [629, 416, 24, 40],
+  ...[466, 482, 498].flatMap((y): Box[] => [[538, y, 8, 8], [572, y, 8, 8]]),
+  ...[416, 432, 448].flatMap((y): Box[] => [[620, y, 8, 8], [654, y, 8, 8]]),
+  /* Puestos junto a las líneas de estudio */
+  ...[280, 295, 310, 325, 340, 355, 370, 385].flatMap((y): Box[] => [[305, y, 8, 8], [437, y, 8, 8]]),
+  ...[196, 211, 226, 241, 256, 271, 286, 459, 473, 487, 501, 515, 529, 543, 557].map((x): Box => [x, 404, 8, 8]),
+  ...[232, 245, 258, 271, 284].map((x): Box => [x, 259, 8, 8]),
+];
+
+/* Mesas redondas: [centroX, centroY, tamaño, rotación] */
+type Round = [cx: number, cy: number, size: number, rotate: number];
+const roundTables: Round[] = [
+  [249.5, 122.5, 15, 0], [249.5, 110.5, 7, 0], [238.5, 127.5, 7, 0], [260.5, 127.5, 7, 0],
+  [624.5, 502.5, 15, 0], [624.5, 488.5, 7, 0], [636.5, 509.5, 7, 0],
+  ...[
+    [217.29, 179.76, 15], [216.15, 167.82, 7], [206.82, 185.79, 7], [228.72, 183.69, 7],
+  ].map(([cx, cy, size]): Round => [cx, cy, size, -5.47]),
+  ...[0, 106].flatMap((dy) =>
+    [
+      [167.78, 489.8, 15], [174.5, 479.86, 7], [155.86, 487.76, 7], [174.07, 500.1, 7],
+    ].map(([cx, cy, size]): Round => [cx, cy + dy, size, 34.12]),
+  ),
+  ...[
+    [163.91, 544.88, 15], [161.53, 533.13, 7], [154.13, 551.98, 7], [175.69, 547.6, 7],
+  ].map(([cx, cy, size]): Round => [cx, cy, size, -11.47]),
+];
+
 function FloorPlan() {
   return (
     <div className="relative size-full bg-white" aria-label="Plano del segundo piso">
-      <div className="floor-grid-pattern absolute left-[58px] top-[395px] size-[235px]" />
+      <div className="floor-grid-pattern absolute left-[58px] top-[395px] h-[235px] w-[238px]" />
       <div className="floor-grid-pattern absolute left-[459px] top-[395px] h-[235px] w-[223px]" />
-      <div className="floor-grid-pattern absolute left-[296px] top-[147px] h-[483px] w-[160px]" />
-      <div className="floor-grid-pattern absolute left-[174px] top-[237px] h-[42px] w-[119px]" />
+      <div className="floor-grid-pattern absolute left-[296px] top-[147px] h-[483px] w-[158px]" />
+      <div className="floor-grid-pattern absolute left-[174px] top-[237px] h-[39px] w-[122px]" />
       <div className="floor-grid-pattern absolute left-[459px] top-[127px] h-[152px] w-[64px]" />
 
-      <div className="absolute left-[400px] top-[123px] flex size-[56px] items-center justify-center bg-icesi-purple">
-        <img src="/assets/b2410.svg" alt="Baño de mujeres" width="25.8462" height="25.8462" />
-      </div>
       <div className="absolute left-[174px] top-[54px] h-[179px] w-[119px] bg-[#f6f6f6]" />
       <div className="absolute left-[528px] top-[54px] h-[225px] w-[154px] bg-[#f6f6f6]" />
-      <div className="absolute left-[459px] top-[54px] h-[69px] w-[64px] bg-[#f6f6f6] text-center" />
+      <div className="absolute left-[459px] top-[54px] h-[69px] w-[64px] bg-[#f6f6f6]" />
       <div className="absolute left-[296px] top-[520px] h-[110px] w-[67px] bg-[#f6f6f6]" />
-      <div className="absolute left-[306px] top-[557px] flex w-[46px] flex-col items-center gap-[3px]">
-        <img src="/assets/48d4c.svg" alt="" width="21" height="21" />
-        <span className="font-['Plus_Jakarta_Sans:Regular'] text-[10px] text-black">Escaleras</span>
-      </div>
       <div className="absolute left-[296px] top-[54px] h-[89px] w-[101px] bg-[#f6f6f6]" />
+      <div className="absolute left-[75px] top-[54px] h-[225px] w-[95px] bg-[#f6f6f6]" />
+      <div className="absolute left-[196px] top-[470px] h-[160px] w-[97px] bg-[#f6f6f6]" />
+      <div className="absolute left-[346px] top-[309px] h-[62px] w-[63px] bg-[#f6f6f6]" />
+      <div className="absolute left-[469px] top-[548px] h-[66px] w-[101px] bg-[#f6f6f6]" />
+      <div className="absolute left-[574px] top-[548px] h-[66px] w-[52px] bg-[#f6f6f6]" />
+      <div className="absolute left-[630px] top-[548px] h-[66px] w-[52px] bg-[#f6f6f6]" />
+      {[395, 455, 515, 575].map((top) => (
+        <div key={top} className="absolute left-[74px] h-[55px] w-[60px] bg-[#f6f6f6]" style={{ top }} />
+      ))}
+      <div className="absolute left-[376px] top-[447px] h-[33px] w-[6px] bg-icesi-gray1" />
+      <div className="absolute left-[382px] top-[447px] h-[33px] w-[87px] bg-[#f6f6f6]" />
+      <div className="absolute left-[365px] top-[520px] size-[42px] bg-[#f6f6f6]" />
+      <div className="absolute left-[433px] top-[520px] h-[110px] w-[33px] bg-[#f6f6f6]" />
+      <img className="absolute left-[395px] top-[520px]" src="/assets/c0fa7.svg" alt="" width="35" height="110" />
+      <div className="absolute left-[469px] top-[512px] h-[31px] w-[45px] bg-[#f6f6f6]" />
+
+      {/* Baño de mujeres */}
+      <div className="absolute left-[400px] top-[124px] size-[56px] bg-icesi-purple" />
+      <div className="absolute left-[417px] top-[132px] flex w-[23px] flex-col items-center gap-[2px]">
+        <img src="/assets/wc-mujeres.svg" alt="Baño de mujeres" width="23" height="23" />
+        <span className="font-['Plus_Jakarta_Sans:Regular'] text-[10px] text-white">WC</span>
+      </div>
+      <div className="absolute left-[404px] top-[227px] h-[8px] w-[52px] bg-black" />
+
       <div className="absolute left-[323px] top-[80px] flex w-[46px] flex-col items-center gap-[3px]">
         <img src="/assets/48d4c.svg" alt="" width="21" height="21" />
         <span className="font-['Plus_Jakarta_Sans:Regular'] text-[10px] text-black">Escaleras</span>
       </div>
-      <div className="absolute left-[75px] top-[54px] h-[225px] w-[95px] bg-[#f6f6f6]" />
-      <div className="absolute left-[196px] top-[470px] h-[160px] w-[97px] bg-[#f6f6f6]" />
-      <div className="absolute left-[574px] top-[548px] h-[66px] w-[52px] bg-[#f6f6f6]" />
-      <div className="absolute left-[469px] top-[512px] h-[31px] w-[45px] bg-[#f6f6f6]" />
-      <div className="absolute left-[346px] top-[309px] h-[62px] w-[63px] bg-[#f6f6f6]" />
-      <div className="absolute left-[630px] top-[548px] h-[66px] w-[52px] bg-[#f6f6f6]" />
-      <div className="absolute left-[469px] top-[548px] h-[66px] w-[101px] bg-[#f6f6f6]" />
-      {[395, 455, 515, 575].map((top) => (
-        <div key={top} className="absolute left-[74px] h-[55px] w-[60px] bg-[#f6f6f6]" style={{ top }} />
-      ))}
-      <div className="absolute left-[404px] top-[227px] h-[8px] w-[52px] bg-[#c4c4c4]" />
-      <div className="absolute left-[374px] top-[447px] h-[33px] w-[8px] bg-[#101828]" />
-      <div className="absolute left-[382px] top-[447px] h-[33px] w-[84px] bg-[#f6f6f6]" />
-      <div className="absolute left-[365px] top-[520px] size-[42px] bg-[#f6f6f6]" />
-      <img className="absolute left-[395px] top-[520px]" src="/assets/c0fa7.svg" alt="" width="35" height="110" />
-      <div className="absolute left-[433px] top-[520px] h-[110px] w-[33px] bg-[#f6f6f6]" />
-      <img className="absolute left-[375px] top-[527px]" src="/assets/f4b65.svg" alt="Ascensor" width="23" height="28.1414" />
+      <div className="absolute left-[306px] top-[557px] flex w-[46px] flex-col items-center gap-[3px]">
+        <img src="/assets/48d4c.svg" alt="" width="21" height="21" />
+        <span className="font-['Plus_Jakarta_Sans:Regular'] text-[10px] text-black">Escaleras</span>
+      </div>
+      <img className="absolute left-[380px] top-[528px]" src="/assets/ascensor-piso2.svg" alt="" width="14" height="17" />
+      <span className="absolute left-[373px] top-[547px] whitespace-nowrap font-['Plus_Jakarta_Sans:Regular'] text-[6px] text-black">
+        Ascensor
+      </span>
+      <img className="absolute left-[486px] top-[518px]" src="/assets/libro-reserva.svg" alt="" width="12" height="12" />
+      <span className="absolute left-[491.5px] top-[531px] -translate-x-1/2 whitespace-nowrap font-['Plus_Jakarta_Sans:Regular'] text-[6px] text-black">
+        Reserva
+      </span>
 
-      <div className="absolute left-[153px] top-[489px] size-[22px] bg-[#f6f6f6]" />
-      <div className="absolute left-[153px] top-[523px] size-[22px] bg-[#f6f6f6]" />
-      <div className="absolute left-[153px] top-[557px] size-[22px] bg-[#f6f6f6]" />
-      <div className="absolute left-[153px] top-[591px] size-[22px] bg-[#f6f6f6]" />
+      {/* Puestos de estudio */}
       <div className="absolute left-[196px] top-[395px] h-[8px] w-[97px] bg-icesi-blue" />
-      <div className="absolute left-[231px] top-[271px] h-[8px] w-[62px] bg-icesi-blue" />
+      <div className="absolute left-[231px] top-[268px] h-[8px] w-[62px] bg-icesi-blue" />
       <div className="absolute left-[296px] top-[279px] h-[116px] w-[8px] bg-icesi-blue" />
-      <div className="absolute left-[448px] top-[279px] h-[116px] w-[8px] bg-icesi-blue" />
-      <div className="absolute left-[459px] top-[395px] h-[8px] w-[107px] bg-icesi-blue" />
+      <div className="absolute left-[446px] top-[279px] h-[116px] w-[8px] bg-icesi-blue" />
+      <div className="absolute left-[459px] top-[395px] h-[8px] w-[106px] bg-icesi-blue" />
 
       <div className="absolute left-[58px] top-[395px] flex h-[235px] w-[16px] items-center justify-center bg-black">
         <span className="-rotate-90 whitespace-nowrap font-['Plus_Jakarta_Sans:SemiBold'] text-[8px] text-white">
@@ -89,57 +138,40 @@ function FloorPlan() {
       <span className="map-label left-[88px] top-[475px]">206B</span>
       <span className="map-label left-[88px] top-[535px]">207B</span>
       <span className="map-label left-[88px] top-[595px]">208B</span>
-      <span className="map-label left-[222px] top-[535px] w-[44px] text-center">Sala general</span>
+      <span className="map-label left-[214px] top-[535px] w-[61px] text-center">Sala de cómputo</span>
+      <span className="map-label left-[353px] top-[330px] w-[48px] text-center" style={{ fontSize: 8 }}>
+        Punto de atención
+      </span>
       <span className="map-label left-[100px] top-[159px] w-[44px]">La idea</span>
       <span className="map-label left-[212px] top-[141px]" style={{ fontSize: 10 }}>Literatura</span>
-      <span className="map-label left-[572px] top-[159px]">United Way</span>
-      <span className="map-label left-[463px] top-[78px] w-[55px]" style={{ fontSize: 8 }}>Coordinación de servicios</span>
+      <span className="map-label left-[571px] top-[151px] whitespace-nowrap">
+        Laboratorio
+        <br />
+        United Way
+      </span>
+      <span className="map-label left-[463px] top-[78px] w-[55px] text-center" style={{ fontSize: 8 }}>
+        Coordinación de servicios
+      </span>
       <span className="map-label left-[503px] top-[573px]">204B</span>
       <span className="map-label left-[584px] top-[573px]">203B</span>
       <span className="map-label left-[640px] top-[573px]">202B</span>
 
-      {/* Mobiliario y divisiones */}
-      <div className="absolute left-[174px] top-[54px] h-[8px] w-[119px] bg-[#c4c4c4]" />
-      <div className="absolute left-[174px] top-[104px] h-[129px] w-[8px] bg-[#c4c4c4]" />
-      <div className="absolute left-[285px] top-[86px] h-[54px] w-[8px] bg-[#c4c4c4]" />
-      <div className="absolute left-[273px] top-[167px] h-[66px] w-[8px] bg-[#c4c4c4]" />
-      <div className="absolute left-[459px] top-[127px] h-[100px] w-[8px] bg-[#c4c4c4]" />
-      <div className="absolute left-[515px] top-[127px] h-[100px] w-[8px] bg-[#c4c4c4]" />
-
-      <div className="absolute left-[213px] top-[97px] h-[32px] w-[8px] bg-[#c4c4c4]" />
-      <div className="absolute left-[221px] top-[89px] h-[8px] w-[32px] bg-[#c4c4c4]" />
-      <div className="absolute left-[242px] top-[165px] h-[32px] w-[8px] bg-[#c4c4c4]" />
-      <div className="absolute left-[210px] top-[197px] h-[8px] w-[32px] bg-[#c4c4c4]" />
-
-      <div className="absolute left-[520px] top-[455px] h-[32px] w-[8px] bg-[#c4c4c4]" />
-      <div className="absolute left-[528px] top-[447px] h-[8px] w-[32px] bg-[#c4c4c4]" />
-      <div className="absolute left-[520px] top-[532px] h-[8px] w-[32px] bg-[#c4c4c4]" />
-      <div className="absolute left-[579px] top-[395px] h-[8px] w-[103px] bg-[#c4c4c4]" />
-      <div className="absolute left-[594px] top-[522px] h-[8px] w-[53px] bg-[#c4c4c4]" />
-      <div className="absolute left-[647px] top-[469px] h-[53px] w-[8px] bg-[#c4c4c4]" />
-      <div className="absolute left-[674px] top-[517px] h-[31px] w-[8px] bg-[#c4c4c4]" />
-
-      {/* Mesas con sillas (tres por lado) */}
-      {[
-        [556, 471],
-        [619, 416],
-      ].map(([x, y]) => (
-        <div key={`mesa-${x}`} className="absolute h-[39px] w-[44px]" style={{ left: x, top: y }}>
-          <div className="absolute left-[10px] top-0 h-[39px] w-[24px] bg-[#d9d9d9]" />
-          {[0, 35].map((chairX) =>
-            [
-              [0, 8],
-              [16, 7],
-              [31, 8],
-            ].map(([chairY, h]) => (
-              <div
-                key={`${chairX}-${chairY}`}
-                className="absolute w-[9px] bg-[#d9d9d9]"
-                style={{ left: chairX, top: chairY, height: h }}
-              />
-            )),
-          )}
-        </div>
+      {/* Mobiliario */}
+      {furniture.map(([left, top, width, height], index) => (
+        <div key={index} className="absolute bg-[#d9d9d9]" style={{ left, top, width, height }} />
+      ))}
+      {roundTables.map(([cx, cy, size, rotate], index) => (
+        <div
+          key={index}
+          className="absolute rounded-full bg-[#d9d9d9]"
+          style={{
+            left: cx - size / 2,
+            top: cy - size / 2,
+            width: size,
+            height: size,
+            transform: rotate ? `rotate(${rotate}deg)` : undefined,
+          }}
+        />
       ))}
     </div>
   );
