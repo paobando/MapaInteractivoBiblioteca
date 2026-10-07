@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
-import { deweyCategories, type Shelf } from "../data/libraryData";
+import { type Shelf } from "../data/libraryData";
+import MapPin from "./MapPin";
 
 const DESIGN_W = 752;
 const DESIGN_H = 674;
@@ -186,15 +187,16 @@ export default function Floor1Map({
 
         {floorShelves.map((shelf) => {
           const selected = selectedShelf?.id === shelf.id;
-          const category = deweyCategories.find((item) => shelf.categoryIds.includes(item.id));
-          const color = shelf.color ?? category?.color ?? "#5454E9";
-          const isArea = shelf.kind === "area";
+          const isDragging = draggingRef.current === shelf.id;
 
           return (
-            <button
+            <MapPin
               key={shelf.id}
-              type="button"
-              aria-label={isArea ? `Área ${shelf.label}` : `${shelf.label}, signatura ${shelf.deweyRanges.join(", ")}`}
+              shelf={shelf}
+              selected={selected}
+              editMode={editMode}
+              isDragging={isDragging}
+              allFloorShelves={floorShelves}
               onPointerDown={(event) => {
                 if (!editMode) return;
                 event.preventDefault();
@@ -213,72 +215,21 @@ export default function Floor1Map({
               onPointerUp={() => {
                 draggingRef.current = null;
               }}
-              onClick={(event) => {
-                event.stopPropagation();
+              onClick={(shelf) => {
                 if (!movedRef.current) onShelfClick(shelf);
                 movedRef.current = false;
               }}
-              className={`group absolute z-10 -translate-x-1/2 focus:outline-none ${
-                isArea ? "-translate-y-1/2" : "-translate-y-full"
-              }`}
-              style={{
-                left: `${shelf.x}%`,
-                top: `${shelf.y}%`,
-                cursor: editMode ? "grab" : "pointer",
-                touchAction: "none",
-              }}
-            >
-              {isArea ? (
-                <>
-                  <span
-                    className="flex size-8 items-center justify-center border-2 bg-white shadow-md transition-transform group-hover:scale-110"
-                    style={{
-                      borderColor: selected ? "#111827" : color,
-                      boxShadow: selected ? `0 0 0 4px ${color}38` : undefined,
-                    }}
-                  >
-                    <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
-                      <rect x="3" y="6" width="12" height="7" stroke={color} strokeWidth="1.5" />
-                      <circle cx="6" cy="4" r="1.25" fill={color} />
-                      <circle cx="12" cy="4" r="1.25" fill={color} />
-                      <circle cx="6" cy="15" r="1.25" fill={color} />
-                      <circle cx="12" cy="15" r="1.25" fill={color} />
-                    </svg>
-                  </span>
-                  <span className="mt-1 block whitespace-nowrap bg-gray-950 px-2 py-1 text-[9px] font-semibold text-white shadow-md">
-                    {shelf.label}
-                  </span>
-                </>
-              ) : (
-                <>
-                  <span
-                    className="flex size-8 items-center justify-center border-2 border-white text-[8px] font-extrabold text-white shadow-lg transition-transform group-hover:scale-110"
-                    style={{
-                      backgroundColor: selected ? "#111827" : color,
-                      transform: selected ? "scale(1.16)" : undefined,
-                      boxShadow: selected ? `0 0 0 4px ${color}38` : undefined,
-                    }}
-                  >
-                    {shelf.label}
-                  </span>
-                  <span
-                    className="mx-auto block size-0 border-x-[5px] border-t-[7px] border-x-transparent"
-                    style={{ borderTopColor: selected ? "#111827" : color }}
-                  />
-                  {!editMode && (
-                    <span className="mt-1 block whitespace-nowrap border border-gray-200 bg-white px-1.5 py-0.5 text-[8px] font-bold text-gray-700 shadow-sm">
-                      {shelf.deweyRanges[0]}
-                    </span>
-                  )}
-                </>
-              )}
-            </button>
+              onMove={onShelfMove}
+            />
           );
         })}
 
         {editMode && (
-          <div className="pointer-events-none absolute left-1/2 top-3 -translate-x-1/2 bg-icesi-orange px-3 py-1.5 text-[10px] font-semibold text-white shadow-lg">
-            Clic para agregar · Arrastra para mover
+          <div
+            className="pointer-events-none absolute bottom-3 right-3 bg-gray-950 text-white px-2.5 py-1 text-[11px] font-bold shadow-md border border-gray-800"
+            style={{ borderRadius: 0 }}
+          >
+            Clic en plano para agregar · Arrastra para mover
           </div>
         )}
       </div>

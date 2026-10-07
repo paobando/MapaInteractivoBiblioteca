@@ -217,6 +217,7 @@ export const shelves: Shelf[] = [
     deweyRanges: ["550 – 599.9"],
     categoryIds: ["500"],
     description: "Ciencias de la Tierra, Biología, Botánica, Zoología",
+    zone: "Sala de lectura",
   },
   {
     id: "p3-t2a",
@@ -227,6 +228,7 @@ export const shelves: Shelf[] = [
     deweyRanges: ["600 – 629.9"],
     categoryIds: ["600"],
     description: "Tecnología: Medicina, Ingeniería, Electrónica",
+    zone: "Sala de lectura",
   },
   {
     id: "p3-t3a",
@@ -237,6 +239,7 @@ export const shelves: Shelf[] = [
     deweyRanges: ["630 – 660.9"],
     categoryIds: ["600"],
     description: "Agricultura, Biotecnología Industrial, Química Industrial",
+    zone: "Sala de lectura",
   },
   {
     id: "p3-t4a",
@@ -247,6 +250,7 @@ export const shelves: Shelf[] = [
     deweyRanges: ["661 – 699.9"],
     categoryIds: ["600"],
     description: "Tecnología química, Manufactura, Construcción",
+    zone: "Sala de lectura",
   },
   {
     id: "p3-t5",
@@ -257,6 +261,7 @@ export const shelves: Shelf[] = [
     deweyRanges: ["700 – 749.9"],
     categoryIds: ["700"],
     description: "Arte, Arquitectura, Diseño, Fotografía",
+    zone: "Sala de lectura",
   },
   {
     id: "p3-t7a",
@@ -267,6 +272,7 @@ export const shelves: Shelf[] = [
     deweyRanges: ["750 – 799.9"],
     categoryIds: ["700"],
     description: "Pintura, Artes gráficas, Música, Deportes",
+    zone: "Sala de lectura",
   },
 
   // ── PISO 3 – Ala derecha ──
@@ -279,6 +285,7 @@ export const shelves: Shelf[] = [
     deweyRanges: ["800 – 829.9"],
     categoryIds: ["800"],
     description: "Literatura: Teoría literaria, Literatura americana en inglés",
+    zone: "Sala de lectura",
   },
   {
     id: "p3-t2b",
@@ -289,6 +296,7 @@ export const shelves: Shelf[] = [
     deweyRanges: ["830 – 869.9"],
     categoryIds: ["800"],
     description: "Literaturas germánicas, Francesa, Italiana, Española",
+    zone: "Sala de lectura",
   },
   {
     id: "p3-t3b",
@@ -299,6 +307,7 @@ export const shelves: Shelf[] = [
     deweyRanges: ["870 – 899.9"],
     categoryIds: ["800"],
     description: "Literatura latina, Griega, Otras literaturas",
+    zone: "Sala de lectura",
   },
   {
     id: "p3-t4b",
@@ -309,6 +318,7 @@ export const shelves: Shelf[] = [
     deweyRanges: ["900 – 939.9"],
     categoryIds: ["900"],
     description: "Historia: Historia general, Europa antigua",
+    zone: "Sala de lectura",
   },
   {
     id: "p3-t6",
@@ -319,6 +329,7 @@ export const shelves: Shelf[] = [
     deweyRanges: ["940 – 979.9"],
     categoryIds: ["900"],
     description: "Historia de Europa moderna, Historia de América",
+    zone: "Sala de lectura",
   },
   {
     id: "p3-t7b",
@@ -329,6 +340,7 @@ export const shelves: Shelf[] = [
     deweyRanges: ["980 – 999.9"],
     categoryIds: ["900"],
     description: "Historia de América del Sur, Historia universal",
+    zone: "Sala de lectura",
   },
 ];
 

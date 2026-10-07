@@ -142,7 +142,7 @@ export default function App() {
     return () => window.clearTimeout(timeout);
   }, [ready, retryCount, shelves, floorNames, floorSubtitles]);
 
-  const [activeFloor, setActiveFloor] = useState<number>(2);
+  const [activeFloor, setActiveFloor] = useState<number>(1);
   const [selectedShelf, setSelectedShelf] = useState<Shelf | null>(null);
   const [editMode, setEditMode] = useState(false);
   editModeRef.current = editMode;
@@ -470,7 +470,9 @@ export default function App() {
         {/* ── Floating panel ── */}
         {liveSelected && (
           <div
-            className="absolute bottom-12 right-5 z-40"
+            className={`absolute z-40 max-sm:inset-x-0 max-sm:bottom-0 sm:bottom-12 ${
+              liveSelected.x > 55 ? "sm:left-5 sm:right-auto" : "sm:right-5 sm:left-auto"
+            }`}
             style={{ filter: "drop-shadow(0 8px 32px rgba(84,84,233,0.18)) drop-shadow(0 2px 8px rgba(0,0,0,0.12))" }}
           >
             {editMode ? (
