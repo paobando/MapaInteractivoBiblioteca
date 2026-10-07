@@ -118,8 +118,8 @@ export default function EditPanel({ shelf, onSave, onDelete, onClose }: Props) {
       return;
     }
 
-    if (file.size > 5 * 1024 * 1024) {
-      setUploadError("El archivo supera el límite de 5MB.");
+    if (file.size > 1.5 * 1024 * 1024) {
+      setUploadError("La foto es muy pesada (máx. 1.5MB para evitar fallos de guardado). Por favor usa una imagen más pequeña.");
       return;
     }
 
@@ -349,7 +349,7 @@ export default function EditPanel({ shelf, onSave, onDelete, onClose }: Props) {
               )}
             </div>
             <p className="text-[11px] text-gray-500 font-semibold truncate">
-              Piso {shelf.floor} · {shelf.label || "Sin etiqueta"}
+              Piso {shelf.floor} · {kind === "shelf" ? (zone.trim() || (shelf.floor === 3 ? "Sala de lectura" : "Colección general")) : (label.trim() || "Área")}{kind === "shelf" && label.trim() && ` · ${label.trim()}`}
             </p>
           </div>
         </div>
@@ -381,7 +381,7 @@ export default function EditPanel({ shelf, onSave, onDelete, onClose }: Props) {
           {/* Control segmentado: Estantería / Área */}
           <div>
             <label className="block text-[11px] font-bold text-gray-500 mb-1.5">
-              Tipo de elemento
+              tipo de elemento
             </label>
             <div className="grid grid-cols-2 gap-1 p-1 bg-gray-100 border border-gray-300">
               <button
@@ -415,7 +415,7 @@ export default function EditPanel({ shelf, onSave, onDelete, onClose }: Props) {
           <div>
             <div className="flex items-center justify-between mb-1.5">
               <label htmlFor="input-label" className="text-[11px] font-bold text-gray-500">
-                {kind === "shelf" ? "Etiqueta del estante" : "Nombre del área"}
+                {kind === "shelf" ? "etiqueta del estante" : "nombre del área"}
               </label>
               <span
                 className={`text-[11px] font-bold ${
@@ -446,7 +446,7 @@ export default function EditPanel({ shelf, onSave, onDelete, onClose }: Props) {
           {/* Área o zona */}
           <div>
             <label htmlFor="input-zone" className="block text-[11px] font-bold text-gray-500 mb-1.5">
-              Zona o sala
+              zona o sala
             </label>
             <input
               id="input-zone"
@@ -471,7 +471,7 @@ export default function EditPanel({ shelf, onSave, onDelete, onClose }: Props) {
           {/* Muestras de marca Icesi */}
           <div>
             <label className="block text-[11px] font-bold text-gray-500 mb-1.5">
-              Colores institucionales
+              colores institucionales
             </label>
             <div className="grid grid-cols-6 gap-1.5">
               {ICESI_COLORS.map((c) => {
@@ -508,7 +508,7 @@ export default function EditPanel({ shelf, onSave, onDelete, onClose }: Props) {
           {/* Color personalizado + Campo HEX validado */}
           <div>
             <label htmlFor="input-hex" className="block text-[11px] font-bold text-gray-500 mb-1.5">
-              Personalizado / Código HEX
+              personalizado / código hex
             </label>
             <div className="flex items-center gap-2">
               <input
@@ -577,7 +577,7 @@ export default function EditPanel({ shelf, onSave, onDelete, onClose }: Props) {
             <div>
               <div className="flex items-center justify-between mb-1.5">
                 <label htmlFor="input-dewey" className="text-[11px] font-bold text-gray-500">
-                  Signatura Dewey
+                  signatura dewey
                 </label>
                 <span className="text-[11px] text-gray-400 font-semibold">
                   ej. 800–899.9
@@ -598,7 +598,7 @@ export default function EditPanel({ shelf, onSave, onDelete, onClose }: Props) {
           {/* Descripción */}
           <div>
             <label htmlFor="input-desc" className="block text-[11px] font-bold text-gray-500 mb-1.5">
-              Descripción / temas
+              descripción / temas
             </label>
             <textarea
               id="input-desc"
@@ -615,10 +615,10 @@ export default function EditPanel({ shelf, onSave, onDelete, onClose }: Props) {
           <div>
             <div className="flex items-center justify-between mb-1.5">
               <label className="text-[11px] font-bold text-gray-500">
-                Foto de la ubicación
+                foto de la ubicación
               </label>
               <span className="text-[11px] text-gray-400 font-semibold">
-                Máx. 5MB
+                máx. 1.5MB
               </span>
             </div>
 
@@ -712,7 +712,7 @@ export default function EditPanel({ shelf, onSave, onDelete, onClose }: Props) {
                       Arrastra una foto aquí o haz clic para examinar
                     </p>
                     <p className="text-[11px] text-gray-400 mt-0.5">
-                      Soporta JPG, PNG, WebP o GIF (máx. 5MB)
+                      Soporta JPG, PNG, WebP o GIF (máx. 1.5MB)
                     </p>
                   </>
                 )}

@@ -40,14 +40,6 @@ export default function ShelfPanel({ shelf, onClose }: Props) {
       ? (shelf.floor === 3 ? "Sala de lectura" : "Colección general")
       : shelf.label?.trim() || "Área");
 
-  const showAreaLabelInKicker =
-    !isShelf &&
-    Boolean(
-      shelf.label &&
-      shelf.zone &&
-      shelf.label.trim().toLowerCase() !== shelf.zone.trim().toLowerCase()
-    );
-
   return (
     <div
       role="dialog"
@@ -143,9 +135,9 @@ export default function ShelfPanel({ shelf, onClose }: Props) {
             </>
           ) : (
             <>
-              {/* Kicker: Área · Piso 2 */}
+              {/* Kicker: Área · Piso 2 · Zona */}
               <p className="text-[11px] font-bold text-gray-500">
-                {showAreaLabelInKicker ? `Área ${shelf.label} · Piso ${shelf.floor}` : `Área · Piso ${shelf.floor}`}
+                Área · Piso {shelf.floor}{shelf.zone?.trim() && ` · ${shelf.zone.trim()}`}
               </p>
 
               {/* Título: Nombre del área */}
@@ -153,7 +145,7 @@ export default function ShelfPanel({ shelf, onClose }: Props) {
                 id="shelf-panel-title"
                 className="text-xl font-black text-gray-950 mt-0.5 leading-tight tracking-tight"
               >
-                {displayTitle}
+                {shelf.label?.trim() || "Área"}
               </h3>
             </>
           )}

@@ -218,7 +218,7 @@ export default function MapPin({
             {/* Etiqueta solo si el nombre no está ya impreso en el plano */}
             {showAreaLabel && (
               <span
-                className="pointer-events-none absolute top-[calc(100%+4px)] left-1/2 -translate-x-1/2 whitespace-nowrap bg-gray-950 px-1.5 py-0.5 text-[9.5px] font-bold text-white shadow-sm"
+                className="pointer-events-none absolute top-[calc(100%+4px)] left-1/2 -translate-x-1/2 whitespace-nowrap bg-gray-950 px-1.5 py-0.5 text-[8px] font-bold text-white shadow-sm"
                 style={{ borderRadius: 0 }}
               >
                 {shelf.label}
@@ -235,7 +235,7 @@ export default function MapPin({
           >
             {/* Cuerpo cuadrado del pin: siempre muestra la etiqueta (T1), nunca lápiz */}
             <div
-              className={`flex size-7 items-center justify-center border border-white text-[10px] font-black tracking-tight ${
+              className={`flex size-7 items-center justify-center border border-white text-[8.5px] font-black tracking-tight ${
                 selected
                   ? "ring-2 ring-gray-950 ring-offset-1"
                   : "focus-visible:ring-2 focus-visible:ring-gray-950"
@@ -264,7 +264,7 @@ export default function MapPin({
             */}
             {showDeweyBadge && (
               <span
-                className="pointer-events-none absolute top-[calc(100%+2px)] left-1/2 -translate-x-1/2 whitespace-nowrap border border-gray-300 bg-white px-1 py-[1px] text-[9.5px] font-bold text-gray-900 shadow-sm"
+                className="pointer-events-none absolute top-[calc(100%+2px)] left-1/2 -translate-x-1/2 whitespace-nowrap border border-gray-300 bg-white px-1 py-[1px] text-[8px] font-bold text-gray-900 shadow-sm"
                 style={{ borderRadius: 0 }}
               >
                 {shelf.deweyRanges[0]}
