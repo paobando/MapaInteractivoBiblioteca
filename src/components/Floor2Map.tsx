@@ -60,15 +60,15 @@ function FloorPlan() {
       <div className="absolute left-[433px] top-[520px] h-[110px] w-[33px] bg-[#f6f6f6]" />
       <img className="absolute left-[375px] top-[527px]" src="/assets/f4b65.svg" alt="Ascensor" width="23" height="28.1414" />
 
-      <div className="absolute left-[153px] top-[489px] size-[22px] bg-icesi-purple" />
-      <div className="absolute left-[153px] top-[523px] size-[22px] bg-icesi-purple" />
-      <div className="absolute left-[153px] top-[557px] size-[22px] bg-icesi-purple" />
-      <div className="absolute left-[153px] top-[591px] size-[22px] bg-icesi-purple" />
-      <div className="absolute left-[196px] top-[395px] h-[8px] w-[97px] bg-icesi-purple" />
-      <div className="absolute left-[231px] top-[271px] h-[8px] w-[62px] bg-icesi-purple" />
-      <div className="absolute left-[296px] top-[279px] h-[116px] w-[8px] bg-icesi-purple" />
-      <div className="absolute left-[448px] top-[279px] h-[116px] w-[8px] bg-icesi-purple" />
-      <div className="absolute left-[459px] top-[395px] h-[8px] w-[107px] bg-icesi-purple" />
+      <div className="absolute left-[153px] top-[489px] size-[22px] bg-[#f6f6f6]" />
+      <div className="absolute left-[153px] top-[523px] size-[22px] bg-[#f6f6f6]" />
+      <div className="absolute left-[153px] top-[557px] size-[22px] bg-[#f6f6f6]" />
+      <div className="absolute left-[153px] top-[591px] size-[22px] bg-[#f6f6f6]" />
+      <div className="absolute left-[196px] top-[395px] h-[8px] w-[97px] bg-icesi-blue" />
+      <div className="absolute left-[231px] top-[271px] h-[8px] w-[62px] bg-icesi-blue" />
+      <div className="absolute left-[296px] top-[279px] h-[116px] w-[8px] bg-icesi-blue" />
+      <div className="absolute left-[448px] top-[279px] h-[116px] w-[8px] bg-icesi-blue" />
+      <div className="absolute left-[459px] top-[395px] h-[8px] w-[107px] bg-icesi-blue" />
 
       <div className="absolute left-[58px] top-[395px] flex h-[235px] w-[16px] items-center justify-center bg-black">
         <span className="-rotate-90 whitespace-nowrap font-['Plus_Jakarta_Sans:SemiBold'] text-[8px] text-white">

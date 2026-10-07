@@ -30,6 +30,7 @@ export type Shelf = {
   zone?: string;
   color?: string;
   kind?: "shelf" | "area";
+  imageUrl?: string;
 };
 
 // Floor 1 - No shelves (administrative + access hall)
@@ -46,10 +47,11 @@ export const shelves: Shelf[] = [
     y: 25.8,
     deweyRanges: [],
     categoryIds: ["300"],
-    description: "Área de trabajo y encuentro para profesores.",
+    description: "Área de trabajo y encuentro para profesores equipada con mesas de estudio, pizarra y luz natural.",
     zone: "Salas de profesores",
     color: "#4CB979",
     kind: "area",
+    imageUrl: "https://images.unsplash.com/photo-1524178232363-1fb2b075b655?auto=format&fit=crop&w=600&q=80",
   },
   {
     id: "p2-area-united-way",
@@ -59,10 +61,11 @@ export const shelves: Shelf[] = [
     y: 25.8,
     deweyRanges: [],
     categoryIds: ["300"],
-    description: "Área de servicio y consulta United Way.",
+    description: "Área de servicio, consulta e innovación United Way para reuniones grupales colaborativas.",
     zone: "United Way",
     color: "#4CB979",
     kind: "area",
+    imageUrl: "https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&w=600&q=80",
   },
   {
     id: "p2-area-general",
@@ -72,10 +75,11 @@ export const shelves: Shelf[] = [
     y: 84.5,
     deweyRanges: [],
     categoryIds: ["300"],
-    description: "Sala general de lectura y estudio.",
+    description: "Sala general de lectura, préstamo de libros de colección general y consulta silenciosa.",
     zone: "Sala general",
     color: "#4CB979",
     kind: "area",
+    imageUrl: "https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=600&q=80",
   },
 
   // ── PISO 2 – Zona Literatura (barras naranjas) ──

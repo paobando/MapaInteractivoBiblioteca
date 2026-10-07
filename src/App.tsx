@@ -252,7 +252,7 @@ export default function App() {
                   <div className="min-w-0">
                     <p className="text-sm font-bold leading-tight truncate"
                        style={{ color: active ? "white" : "#374151" }}>
-                      {floorNames[f]}
+                      {defaultFloorNames[f]}
                     </p>
                   </div>
                 </button>
@@ -263,6 +263,43 @@ export default function App() {
 
         {/* Spacer */}
         <div className="flex-1" />
+
+        {/* Convenciones */}
+        <div className="px-4 py-3.5 bg-gray-50 border border-gray-100 mx-4 mb-4">
+          <p className="text-xs font-normal text-gray-400 tracking-wider mb-2.5">
+            Convenciones del mapa
+          </p>
+          <div className="flex flex-col gap-2.5">
+            <div className="flex items-center gap-2.5">
+              <div className="w-7 h-2 bg-[#C4C4C4] shrink-0" />
+              <span className="text-xs font-semibold text-gray-700">
+                Estanterías físicas (líneas grises)
+              </span>
+            </div>
+            <div className="flex items-center gap-2.5">
+              <div className="w-7 h-2 bg-icesi-blue shrink-0" />
+              <span className="text-xs font-semibold text-gray-700">
+                Puestos de estudio (líneas azules)
+              </span>
+            </div>
+            <div className="flex items-center gap-2.5">
+              <div className="w-7 h-2 bg-icesi-orange shrink-0" />
+              <span className="text-xs font-semibold text-gray-700">
+                Entradas y salidas (líneas naranjas)
+              </span>
+            </div>
+            <div className="flex items-center gap-2.5">
+              <div className="flex -space-x-1 shrink-0">
+                <span className="w-3 h-3 bg-icesi-blue border border-white inline-block" />
+                <span className="w-3 h-3 bg-icesi-orange border border-white inline-block" />
+                <span className="w-3 h-3 bg-icesi-green border border-white inline-block" />
+              </div>
+              <span className="text-xs font-semibold text-gray-700">
+                Pines de referencia
+              </span>
+            </div>
+          </div>
+        </div>
 
         <div className="h-px bg-gray-100 mx-5" />
 

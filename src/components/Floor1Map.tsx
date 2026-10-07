@@ -76,10 +76,10 @@ function FloorPlan() {
         <span className="font-['Plus_Jakarta_Sans:Regular'] text-[12px] text-black">Marketing zone</span>
       </div>
 
-      <div className="absolute left-[309px] top-[223px] h-[8px] w-[120px] bg-icesi-purple" />
-      <div className="absolute left-[309px] top-[454px] h-[8px] w-[120px] bg-icesi-purple" />
-      <div className="absolute left-[309px] top-[277px] h-[131px] w-[8px] bg-icesi-purple" />
-      <div className="absolute left-[601px] top-[277px] h-[131px] w-[8px] bg-icesi-purple" />
+      <div className="absolute left-[309px] top-[223px] h-[8px] w-[120px] bg-icesi-orange" />
+      <div className="absolute left-[309px] top-[454px] h-[8px] w-[120px] bg-icesi-orange" />
+      <div className="absolute left-[309px] top-[277px] h-[131px] w-[8px] bg-icesi-orange" />
+      <div className="absolute left-[601px] top-[277px] h-[131px] w-[8px] bg-icesi-orange" />
 
       {[
         { top: 54, label: "103B" },

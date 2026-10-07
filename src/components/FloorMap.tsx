@@ -120,7 +120,7 @@ export default function FloorMap({
               {/* Ring pulse on selected */}
               {selected && (
                 <div
-                  className="absolute rounded-full animate-ping"
+                  className="absolute animate-ping"
                   style={{
                     width: 28,
                     height: 28,

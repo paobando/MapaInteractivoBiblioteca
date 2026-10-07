@@ -11,79 +11,136 @@ export default function ShelfPanel({ shelf, onClose }: Props) {
 
   return (
     <div
-      className="overflow-hidden flex flex-col"
+      className="flex flex-col bg-white text-gray-900 border-2 border-gray-950 shadow-2xl relative"
       style={{
-        backgroundColor: "white",
-        borderRadius: 0,
-        border: "1.5px solid rgba(255,255,255,0.9)",
+        width: 330,
+        fontFamily: "'Plus Jakarta Sans', sans-serif",
       }}
     >
-      {/* Colored header band */}
-      <div
-        className="px-5 py-4 flex items-start justify-between gap-3"
-        style={{ backgroundColor: color }}
+      {/* Absolute Close button */}
+      <button
+        onClick={onClose}
+        className="absolute top-3 right-3 z-50 bg-gray-950/80 hover:bg-gray-950 text-white rounded-full w-7 h-7 flex items-center justify-center transition-colors"
+        aria-label="Cerrar"
       >
-        <div>
-          <p className="text-xs font-semibold uppercase tracking-widest" style={{ color: "rgba(255,255,255,0.65)" }}>
-            Piso {shelf.floor} · {shelf.kind === "area" ? "Área" : "Estantería"}
-          </p>
-          <h3 className="text-white text-3xl font-extrabold mt-0.5 leading-none">{shelf.label}</h3>
-          {shelf.kind !== "area" && (
-            <>
-              <p className="mt-1.5 text-xs font-semibold uppercase tracking-wider" style={{ color: "rgba(255,255,255,0.65)" }}>
-                Signatura Dewey
-              </p>
-              <p className="font-mono text-base font-bold" style={{ color: "rgba(255,255,255,0.9)" }}>
-                {shelf.deweyRanges.join(" · ")}
-              </p>
-            </>
-          )}
-        </div>
-        <button
-          onClick={onClose}
-          className="rounded-full w-8 h-8 flex items-center justify-center transition-colors shrink-0 mt-0.5"
-          aria-label="Cerrar"
-        >
-          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-            <path d="M11 3L3 11M3 3l8 8" stroke="white" strokeWidth="2" strokeLinecap="round" />
-          </svg>
-        </button>
+        <svg width="10" height="10" viewBox="0 0 14 14" fill="none">
+          <path d="M11 3L3 11M3 3l8 8" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
+        </svg>
+      </button>
+
+      {/* ── TOP SECTION: PHOTO OR TECHNICAL DRAWING ── */}
+      <div className="bg-gray-50 border-b border-gray-950 flex items-center justify-center overflow-hidden aspect-[4/3] relative">
+        {shelf.imageUrl ? (
+          <img
+            src={shelf.imageUrl}
+            alt={shelf.label}
+            className="w-full h-full object-cover"
+          />
+        ) : (
+          <div className="flex flex-col items-center justify-center py-6">
+            {shelf.kind === "area" ? (
+              // Minimal desk drawing
+              <svg viewBox="0 0 100 80" className="w-28 h-28 stroke-gray-400 fill-none" strokeWidth="1.2">
+                <rect x="20" y="30" width="60" height="35" rx="1" />
+                <line x1="25" y1="35" x2="75" y2="35" />
+                <line x1="30" y1="30" x2="30" y2="65" />
+                <line x1="70" y1="30" x2="70" y2="65" />
+                <rect x="42" y="15" width="16" height="15" rx="1" />
+                <line x1="50" y1="30" x2="50" y2="50" />
+                {/* Chair outline */}
+                <path d="M 46 22 L 54 22 L 54 30 L 46 30 Z" />
+              </svg>
+            ) : (
+              // Minimal bookshelf drawing
+              <svg viewBox="0 0 100 85" className="w-28 h-28 stroke-gray-400 fill-none" strokeWidth="1.2">
+                <rect x="25" y="10" width="50" height="65" rx="1" />
+                <line x1="25" y1="28" x2="75" y2="28" />
+                <line x1="25" y1="46" x2="75" y2="46" />
+                <line x1="25" y1="62" x2="75" y2="62" />
+                {/* Books layer 1 */}
+                <rect x="30" y="14" width="6" height="14" />
+                <rect x="36" y="14" width="5" height="14" />
+                <rect x="41" y="16" width="6" height="12" transform="rotate(12 41 16)" />
+                {/* Books layer 2 */}
+                <rect x="55" y="32" width="7" height="14" />
+                <rect x="62" y="32" width="8" height="14" />
+                {/* Books layer 3 */}
+                <rect x="32" y="50" width="6" height="12" />
+                <rect x="38" y="50" width="8" height="12" />
+              </svg>
+            )}
+            <span className="text-[10px] font-bold text-gray-400 mt-1">
+              Esquema técnico de referencia
+            </span>
+          </div>
+        )}
       </div>
 
-      {/* Body */}
-      <div className="px-5 py-4 flex flex-col gap-4">
-        {/* Location color */}
-        <div className="flex items-center gap-2 text-xs font-bold text-gray-600">
-          <span className="size-3" style={{ backgroundColor: color }} />
-          Color de ubicación · {color.toUpperCase()}
+      {/* ── CENTRAL SECTION: MAIN HEADINGS ── */}
+      <div className="px-5 py-4 border-b border-gray-950 bg-white">
+        <div className="flex items-baseline justify-between">
+          <h4 className="text-xs font-normal tracking-tight text-gray-400">
+            {shelf.kind === "area" ? "Sala / Área" : "Colección / Estante"}
+          </h4>
+        </div>
+        <h3 className="text-3xl font-black text-gray-900 tracking-tight mt-1 leading-none">
+          {shelf.label}
+        </h3>
+      </div>
+
+      {/* ── TECHNICAL DATA SHEET GRID ── */}
+      <div className="px-5 py-4 border-b border-gray-950 bg-white text-[11px] grid grid-cols-2 gap-x-4 gap-y-3">
+        <div>
+          <span className="block font-normal text-gray-400 text-[10px] mb-0.5">
+            Ubicación
+          </span>
+          <span className="font-extrabold text-gray-900">
+            Piso {shelf.floor} · {shelf.zone ?? "General"}
+          </span>
         </div>
 
-        {/* Description */}
-        <div
-          className="px-4 py-3"
-          style={{ backgroundColor: "#F5F6FA" }}
-        >
-          <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1.5">Contenido</p>
-          <p className="text-sm text-gray-700 leading-relaxed">{shelf.description}</p>
+        <div>
+          <span className="block font-normal text-gray-400 text-[10px] mb-0.5">
+            Categoría / Tipo
+          </span>
+          <span className="font-extrabold text-gray-900">
+            {shelf.kind === "area" ? "Área de servicio" : "Estantería física"}
+          </span>
         </div>
 
-        {/* Location hint */}
-        <div
-          className="flex items-center gap-3 px-4 py-3"
-          style={{ backgroundColor: `${color}0D`, border: `1px solid ${color}22` }}
-        >
-          <svg width="18" height="18" viewBox="0 0 18 18" fill="none" className="shrink-0">
-            <path
-              d="M9 1.5A5.5 5.5 0 0 0 3.5 7c0 4.375 5.5 9.5 5.5 9.5S14.5 11.375 14.5 7A5.5 5.5 0 0 0 9 1.5Zm0 7.5a2 2 0 1 1 0-4 2 2 0 0 1 0 4Z"
-              fill={color}
+        <div>
+          <span className="block font-normal text-gray-400 text-[10px] mb-0.5">
+            Signatura dewey
+          </span>
+          <span className="font-mono font-extrabold text-gray-900 text-xs">
+            {shelf.kind !== "area" && shelf.deweyRanges.length > 0 ? shelf.deweyRanges.join(" · ") : "N/A"}
+          </span>
+        </div>
+
+        <div>
+          <span className="block font-normal text-gray-400 text-[10px] mb-0.5">
+            Color
+          </span>
+          <div className="flex items-center gap-1.5 mt-0.5">
+            <span
+              className="w-3.5 h-3.5 inline-block border border-gray-950 shadow-sm"
+              style={{ backgroundColor: color }}
             />
-          </svg>
-          <p className="text-xs leading-relaxed" style={{ color }}>
-            Dirígete al <strong>Piso {shelf.floor}</strong>
-            {shelf.zone ? <> · <strong>{shelf.zone}</strong></> : null} y ubica{" "}
-            {shelf.kind === "area" ? "el área" : "la estantería"} <strong>{shelf.label}</strong> señalizada en el plano.
-          </p>
+            <span className="font-mono font-bold text-gray-700">
+              {color}
+            </span>
+          </div>
         </div>
+      </div>
+
+      {/* ── DESCRIPTION / CONTENT ── */}
+      <div className="px-5 py-4 bg-gray-50 flex-1">
+        <span className="block font-normal text-gray-400 text-[10px] mb-2">
+          Especificación de contenido
+        </span>
+        <p className="text-xs text-gray-700 font-semibold leading-relaxed">
+          {shelf.description || "Sin descripción física asignada."}
+        </p>
       </div>
     </div>
   );

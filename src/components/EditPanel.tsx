@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { deweyCategories, type Shelf } from "../data/libraryData";
+import { projectId, publicAnonKey } from "../../utils/supabase/info";
 
 const colorPresets = ["#5454E9", "#865CF0", "#E9683B", "#4CB979", "#E4EB60", "#111827"];
 
@@ -10,6 +11,13 @@ type Props = {
   onClose: () => void;
 };
 
+const imagePresets = [
+  { name: "Estantes", url: "https://images.unsplash.com/photo-1521587760476-6c12a4b040da?auto=format&fit=crop&w=600&q=80" },
+  { name: "Estudio", url: "https://images.unsplash.com/photo-1524178232363-1fb2b075b655?auto=format&fit=crop&w=600&q=80" },
+  { name: "Reunión", url: "https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&w=600&q=80" },
+  { name: "General", url: "https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=600&q=80" },
+];
+
 export default function EditPanel({ shelf, onSave, onDelete, onClose }: Props) {
   const [label, setLabel] = useState(shelf.label);
   const [dewey, setDewey] = useState(shelf.deweyRanges[0] ?? "");
@@ -19,7 +27,70 @@ export default function EditPanel({ shelf, onSave, onDelete, onClose }: Props) {
   const defaultCategory = deweyCategories.find((category) => shelf.categoryIds.includes(category.id));
   const [color, setColor] = useState(shelf.color ?? defaultCategory?.color ?? "#5454E9");
   const [colorText, setColorText] = useState(color.toUpperCase());
+  const [imageUrl, setImageUrl] = useState(shelf.imageUrl ?? "");
+  const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState("");
   const [confirmDelete, setConfirmDelete] = useState(false);
+
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 5 * 1024 * 1024) {
+      setUploadError("El archivo supera el límite de 5MB");
+      return;
+    }
+
+    setUploading(true);
+    setUploadError("");
+
+    try {
+      const bucketName = "images";
+      const cleanFileName = `${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.]/g, "_")}`;
+      const uploadUrl = `https://${projectId}.supabase.co/storage/v1/object/${bucketName}/${cleanFileName}`;
+
+      const response = await fetch(uploadUrl, {
+        method: "POST",
+        headers: {
+          "apikey": publicAnonKey,
+          "Authorization": `Bearer ${publicAnonKey}`,
+          "Content-Type": file.type,
+        },
+        body: file,
+      });
+
+      if (response.ok) {
+        const publicUrl = `https://${projectId}.supabase.co/storage/v1/object/public/${bucketName}/${cleanFileName}`;
+        setImageUrl(publicUrl);
+        setUploading(false);
+        return;
+      }
+    } catch (e) {
+      console.warn("Error uploading to Supabase Storage, trying base64 fallback:", e);
+    }
+
+    // Base64 fallback if storage bucket or upload fails
+    try {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        if (typeof reader.result === "string") {
+          setImageUrl(reader.result);
+          setUploading(false);
+        } else {
+          setUploadError("Error al codificar la imagen");
+          setUploading(false);
+        }
+      };
+      reader.onerror = () => {
+        setUploadError("Error al leer el archivo");
+        setUploading(false);
+      };
+      reader.readAsDataURL(file);
+    } catch {
+      setUploadError("Error de lectura del archivo");
+      setUploading(false);
+    }
+  };
 
   const handleSave = () => {
     onSave({
@@ -30,6 +101,7 @@ export default function EditPanel({ shelf, onSave, onDelete, onClose }: Props) {
       zone: zone.trim() || undefined,
       color,
       kind,
+      imageUrl: imageUrl.trim() || undefined,
     });
     onClose();
   };
@@ -193,6 +265,86 @@ export default function EditPanel({ shelf, onSave, onDelete, onClose }: Props) {
                        focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-300 transition-all
                        placeholder-gray-400"
           />
+        </div>
+
+        {/* Photo Upload Area */}
+        <div>
+          <label className="text-xs font-bold text-gray-400 uppercase tracking-wider block mb-1.5">
+            Foto de la ubicación
+          </label>
+          
+          <div className="flex flex-col gap-2">
+            {imageUrl ? (
+              <div className="relative aspect-video w-full border border-gray-200 bg-gray-50 flex items-center justify-center overflow-hidden">
+                <img src={imageUrl} alt="Vista previa" className="w-full h-full object-cover" />
+                <button
+                  type="button"
+                  onClick={() => setImageUrl("")}
+                  className="absolute bottom-2 right-2 bg-red-600 hover:bg-red-700 text-white text-[10px] font-bold px-2 py-1 transition-colors"
+                  style={{ borderRadius: 0 }}
+                >
+                  Eliminar foto
+                </button>
+              </div>
+            ) : (
+              <label 
+                className="flex flex-col items-center justify-center w-full h-24 border border-dashed border-gray-300 bg-gray-50 hover:bg-gray-100/50 cursor-pointer transition-colors px-3 text-center"
+                style={{ borderRadius: 0 }}
+              >
+                <div className="flex flex-col items-center justify-center pt-2 pb-2">
+                  <svg className="w-6 h-6 mb-1 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                  </svg>
+                  <p className="text-xs font-bold text-gray-500">
+                    {uploading ? "Subiendo archivo..." : "Subir archivo de imagen"}
+                  </p>
+                  <p className="text-[9px] text-gray-400 mt-0.5">JPG, PNG o GIF (Máx. 5MB)</p>
+                </div>
+                <input 
+                  type="file" 
+                  accept="image/*" 
+                  onChange={handleFileUpload} 
+                  disabled={uploading}
+                  className="hidden" 
+                />
+              </label>
+            )}
+
+            {uploadError && (
+              <p className="text-[10px] font-bold text-red-600 leading-tight">
+                {uploadError}
+              </p>
+            )}
+
+            {/* Quick URL alternate entry */}
+            <div className="mt-1">
+              <span className="text-[9px] font-bold text-gray-400 uppercase block mb-1">
+                O pegar dirección de imagen (URL):
+              </span>
+              <input
+                value={imageUrl.startsWith("data:") ? "" : imageUrl}
+                onChange={(e) => setImageUrl(e.target.value)}
+                placeholder="https://images.unsplash.com/..."
+                className="w-full px-2.5 py-1.5 text-xs bg-gray-50 border border-gray-200 focus:outline-none focus:ring-1 focus:ring-blue-300"
+              />
+            </div>
+            
+            {/* Quick presets */}
+            <div className="flex gap-1.5 mt-1 flex-wrap items-center">
+              <span className="text-[8px] font-bold text-gray-400">Preajustes:</span>
+              {imagePresets.map((preset) => (
+                <button
+                  key={preset.name}
+                  type="button"
+                  onClick={() => setImageUrl(preset.url)}
+                  className="text-[9px] font-bold px-1.5 py-0.5 bg-gray-100 hover:bg-gray-200 text-gray-700 transition-colors border border-gray-300"
+                  style={{ borderRadius: 0 }}
+                >
+                  {preset.name}
+                </button>
+              ))}
+            </div>
+          </div>
         </div>
 
         {/* Drag hint */}
