@@ -312,6 +312,12 @@ export default function App() {
               </span>
             </div>
             <div className="flex items-center gap-2.5">
+              <div className="w-3 h-3 bg-[#d9d9d9] border border-gray-300 shrink-0" />
+              <span className="text-xs font-semibold text-gray-700">
+                Columnas (cuadrados grises)
+              </span>
+            </div>
+            <div className="flex items-center gap-2.5">
               <div className="flex -space-x-1 shrink-0">
                 <span className="w-3 h-3 bg-icesi-blue border border-white inline-block" />
                 <span className="w-3 h-3 bg-icesi-orange border border-white inline-block" />
